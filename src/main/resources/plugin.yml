@@ -1,0 +1,7 @@
+name: Quests
+version: '${project.version}'
+main: com.titanborn.plugin.Quests
+api-version: 1.19
+commands:
+  quests:
+    description: Quests for questing purposes.

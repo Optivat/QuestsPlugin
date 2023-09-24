@@ -1,0 +1,6 @@
+com\titanborn\plugin\QuestLog.class
+com\titanborn\plugin\events\QuestsMenuListener.class
+com\titanborn\plugin\commands\QuestsCommand.class
+com\titanborn\plugin\Quests$1.class
+com\titanborn\plugin\Quests.class
+com\titanborn\plugin\commands\QuestsCommandTabCompleter.class
