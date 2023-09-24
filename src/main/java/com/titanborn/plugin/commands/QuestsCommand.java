@@ -67,9 +67,11 @@ public class QuestsCommand implements CommandExecutor {
                         ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
                         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
                         assert skullMeta != null;
+                        //Note to self, does not work as intended.
                         skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(UUID.fromString("a68f0b64-8d14-4000-a95f-4b9ba14f8df9")));
                         skull.setItemMeta(skullMeta);
                         inventory.setItem(45, skull);
+                        //Note to self, does not work as intended.
                         skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(UUID.fromString("50c8510b-5ea0-4d60-be9a-7d542d6cd156")));
                         skull.setItemMeta(skullMeta);
                         inventory.setItem(53, skull);

@@ -46,6 +46,7 @@ public class QuestLog {
         lore.add(ChatColor.GRAY + "- Length: " + ChatColor.BOLD + length);
         lore.add("");
         //Creating the description for the lore
+        //Note to self, does not work as intended.
         String[] descriptionSplit = description.replace("_", " ").split("\\s");
         StringBuilder loreline = new StringBuilder();
         for(String string : descriptionSplit) {
