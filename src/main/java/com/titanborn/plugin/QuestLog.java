@@ -46,15 +46,17 @@ public class QuestLog {
         lore.add(ChatColor.GRAY + "- Length: " + ChatColor.BOLD + length);
         lore.add("");
         //Creating the description for the lore
-        //Note to self, does not work as intended.
         String[] descriptionSplit = description.replace("_", " ").split("\\s");
         StringBuilder loreline = new StringBuilder();
         for(String string : descriptionSplit) {
-            loreline.append(string);
-            if(loreline.toString().length() > 40) {
-                lore.add(ChatColor.GRAY + loreline.toString());
-                loreline = new StringBuilder("");
+            loreline.append(" ").append(string);
+            if(loreline.toString().length() > 25) {
+                lore.add(ChatColor.GRAY + loreline.toString().trim());
+                loreline = new StringBuilder();
             }
+        }
+        if(!loreline.toString().equalsIgnoreCase("")) {
+            lore.add(ChatColor.GRAY + loreline.toString().trim());
         }
         lore.add("");
         Location loc = Location.deserialize(location);
@@ -70,7 +72,7 @@ public class QuestLog {
                 return questLog;
             }
         }
-        Bukkit.getServer().getConsoleSender().sendMessage("NULL for: Method, getQuestByName()");
+        Bukkit.getLogger().info("NULL for: Method, getQuestByName()");
         return null;
     }
 

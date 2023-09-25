@@ -13,7 +13,11 @@ import org.bukkit.inventory.Inventory;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
+import org.bukkit.profile.PlayerProfile;
+import org.bukkit.profile.PlayerTextures;
 
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.util.UUID;
 
 public class QuestsCommand implements CommandExecutor {
@@ -67,12 +71,20 @@ public class QuestsCommand implements CommandExecutor {
                         ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
                         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
                         assert skullMeta != null;
-                        //Note to self, does not work as intended.
-                        skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(UUID.fromString("a68f0b64-8d14-4000-a95f-4b9ba14f8df9")));
+                        PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());
+                        PlayerTextures textures = profile.getTextures();
+                        try {
+                            textures.setSkin(new URL("http://textures.minecraft.net/texture/f7aacad193e2226971ed95302dba433438be4644fbab5ebf818054061667fbe2"));
+                        } catch (MalformedURLException e) {throw new RuntimeException(e);}
+                        skullMeta.setOwnerProfile(profile);
+                        skullMeta.setDisplayName(ChatColor.YELLOW + "Left Page");
                         skull.setItemMeta(skullMeta);
                         inventory.setItem(45, skull);
-                        //Note to self, does not work as intended.
-                        skullMeta.setOwningPlayer(Bukkit.getOfflinePlayer(UUID.fromString("50c8510b-5ea0-4d60-be9a-7d542d6cd156")));
+                        try {
+                            textures.setSkin(new URL("http://textures.minecraft.net/texture/d34ef0638537222b20f480694dadc0f85fbe0759d581aa7fcdf2e43139377158"));
+                        } catch (MalformedURLException e) {throw new RuntimeException(e);}
+                        skullMeta.setOwnerProfile(profile);
+                        skullMeta.setDisplayName(ChatColor.YELLOW + "Left Page");
                         skull.setItemMeta(skullMeta);
                         inventory.setItem(53, skull);
                         player.openInventory(inventory);

@@ -5,6 +5,7 @@ import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.titanborn.plugin.commands.QuestsCommand;
 import com.titanborn.plugin.commands.QuestsCommandTabCompleter;
+import com.titanborn.plugin.events.GenericListener;
 import com.titanborn.plugin.events.QuestsMenuListener;
 import org.bukkit.Bukkit;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -55,6 +56,7 @@ public final class Quests extends JavaPlugin {
         getCommand("quests").setTabCompleter(new QuestsCommandTabCompleter());
 
         Bukkit.getPluginManager().registerEvents(new QuestsMenuListener(), this);
+        Bukkit.getPluginManager().registerEvents(new GenericListener(), this);
     }
 
     public static void saveJson() {
