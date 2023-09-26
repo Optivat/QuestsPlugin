@@ -26,6 +26,7 @@ public class QuestLog {
         this.length = length;
         this.location = location.serialize();
     }
+    @SuppressWarnings("unused")
     public QuestLog(String name, String description, int minLevel, String length, Map<String, Object> location) {
         this.name = name;
         this.description = description;

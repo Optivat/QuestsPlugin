@@ -21,6 +21,9 @@ import java.net.URL;
 import java.util.UUID;
 
 public class QuestsCommand implements CommandExecutor {
+
+    // “I'll keep all my emotions right here, and then one day I'll die” - John Malaney
+    @SuppressWarnings("NullableProblems")
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
         if(sender instanceof Player) {
@@ -37,7 +40,7 @@ public class QuestsCommand implements CommandExecutor {
                             Quests.totalQuestsMap.put(args[1], new QuestLog(args[1], args[4], Integer.parseInt(args[2]), args[3], player.getLocation()));
                             Quests.saveJson();
                         } else {
-                            player.sendMessage(ChatColor.RED + "Invalid arguement for create! /quests create (name) (min level) (length) (description)");
+                            player.sendMessage(ChatColor.RED + "Invalid argument for create! /quests create (name) (min level) (length) (description)");
                         }
                         break;
                     case "remove":
@@ -46,57 +49,63 @@ public class QuestsCommand implements CommandExecutor {
                                 Quests.totalQuestsMap.remove(args[1]);
                                 Quests.saveJson();
                             } else {
-                                player.sendMessage(ChatColor.RED + "Invalid arguements for remove! The name is not a quest.");
+                                player.sendMessage(ChatColor.RED + "Invalid arguments for remove! The name is not a quest.");
                             }
                         } else {
-                            player.sendMessage(ChatColor.RED + "Invalid arguements for remove! /quests remove (name)");
+                            player.sendMessage(ChatColor.RED + "Invalid arguments for remove! /quests remove (name)");
                         }
                         break;
                     case "open":
+                        if(!Quests.playerPage.containsKey(player)) {
+                            Quests.playerPage.put(player, 0);
+                        }
                         //To open the GUI
-                        Inventory inventory = Bukkit.createInventory(player, 54, ChatColor.DARK_AQUA  + "" + ChatColor.BOLD + "Quests");
-                        ItemStack bSG = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
-                        ItemMeta bSGMeta = bSG.getItemMeta();
-                        assert bSGMeta != null;
-                        bSGMeta.setDisplayName(ChatColor.BLACK + "");
-                        bSG.setItemMeta(bSGMeta);
-                        int slots = 0;
-                        for(QuestLog quest : Quests.totalQuestsMap.values()) {
-                            inventory.setItem(slots, quest.itemize());
-                            slots+=1;
-                        }
-                        for(int x = slots; x < 45; x++) {
-                            inventory.setItem(x, bSG);
-                        }
-                        ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
-                        SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
-                        assert skullMeta != null;
-                        PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());
-                        PlayerTextures textures = profile.getTextures();
-                        try {
-                            textures.setSkin(new URL("http://textures.minecraft.net/texture/f7aacad193e2226971ed95302dba433438be4644fbab5ebf818054061667fbe2"));
-                        } catch (MalformedURLException e) {throw new RuntimeException(e);}
-                        skullMeta.setOwnerProfile(profile);
-                        skullMeta.setDisplayName(ChatColor.YELLOW + "Left Page");
-                        skull.setItemMeta(skullMeta);
-                        inventory.setItem(45, skull);
-                        try {
-                            textures.setSkin(new URL("http://textures.minecraft.net/texture/d34ef0638537222b20f480694dadc0f85fbe0759d581aa7fcdf2e43139377158"));
-                        } catch (MalformedURLException e) {throw new RuntimeException(e);}
-                        skullMeta.setOwnerProfile(profile);
-                        skullMeta.setDisplayName(ChatColor.YELLOW + "Left Page");
-                        skull.setItemMeta(skullMeta);
-                        inventory.setItem(53, skull);
-                        player.openInventory(inventory);
+                        openQuestsGUI(player);
                         break;
                     default:
                         return false;
                 }
             } else {
                 //Note to self, remove (1) on release.
-                player.sendMessage(ChatColor.RED + "Invalid arguement (1)!");
+                player.sendMessage(ChatColor.RED + "Invalid argument (1)!");
             }
         }
         return false;
+    }
+    public static void openQuestsGUI(Player player) {
+        Inventory inventory = Bukkit.createInventory(player, 54, ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Quests");
+        ItemStack bSG = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+        ItemMeta bSGMeta = bSG.getItemMeta();
+        assert bSGMeta != null;
+        bSGMeta.setDisplayName(ChatColor.BLACK.toString());
+        bSG.setItemMeta(bSGMeta);
+        int slots = 0;
+        for(QuestLog quest : Quests.totalQuestsMap.values()) {
+            inventory.setItem(slots, quest.itemize());
+            slots+=1;
+        }
+        for(int x = slots; x < 45; x++) {
+            inventory.setItem(x, bSG);
+        }
+        ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
+        SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
+        assert skullMeta != null;
+        PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());
+        PlayerTextures textures = profile.getTextures();
+        try {
+            textures.setSkin(new URL("https://textures.minecraft.net/texture/f7aacad193e2226971ed95302dba433438be4644fbab5ebf818054061667fbe2"));
+        } catch (MalformedURLException e) {throw new RuntimeException(e);}
+        skullMeta.setOwnerProfile(profile);
+        skullMeta.setDisplayName(ChatColor.YELLOW + "Left Page");
+        skull.setItemMeta(skullMeta);
+        inventory.setItem(45, skull);
+        try {
+            textures.setSkin(new URL("https://textures.minecraft.net/texture/d34ef0638537222b20f480694dadc0f85fbe0759d581aa7fcdf2e43139377158"));
+        } catch (MalformedURLException e) {throw new RuntimeException(e);}
+        skullMeta.setOwnerProfile(profile);
+        skullMeta.setDisplayName(ChatColor.YELLOW + "Left Page");
+        skull.setItemMeta(skullMeta);
+        inventory.setItem(53, skull);
+        player.openInventory(inventory);
     }
 }

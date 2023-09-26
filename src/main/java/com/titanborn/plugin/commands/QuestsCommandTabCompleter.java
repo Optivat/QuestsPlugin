@@ -8,6 +8,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class QuestsCommandTabCompleter implements TabCompleter {
+    //I am going to pray that this doesn't cause any problems in the foreseeable future.
+    @SuppressWarnings("NullableProblems")
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
         if(args.length == 1) {
