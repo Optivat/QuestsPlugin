@@ -3,10 +3,7 @@ package com.titanborn.plugin.events;
 import com.titanborn.plugin.QuestLog;
 import com.titanborn.plugin.Quests;
 import com.titanborn.plugin.commands.QuestsCommand;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
-import org.bukkit.Material;
-import org.bukkit.World;
+import org.bukkit.*;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
@@ -55,14 +52,22 @@ public class QuestsMenuListener implements Listener {
                         player.sendBlockChange(new Location(world, xPoint, y - 1, zPoint), Material.IRON_BLOCK.createBlockData());
                     }
                 }
-
+                e.getView().close();
             }
-            if (Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName().equalsIgnoreCase(ChatColor.YELLOW + "Left Page")) {
+            if (Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName().equalsIgnoreCase(ChatColor.YELLOW + "Previous Page")) {
                 int currentPlayerPage = Quests.playerPage.get(player);
                 //This line of code should never happen, but if it does then this line of code should fix it.
-                if(currentPlayerPage <= 0) {Quests.playerPage.put(player, 0);QuestsCommand.openQuestsGUI(player);return;}
+                if(currentPlayerPage <= 0) {Quests.playerPage.put(player, 0);QuestsCommand.openQuestsGUI(player);player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 3.0F, 0.5F);return;}
+                Quests.playerPage.put(player, currentPlayerPage-1);
+                QuestsCommand.openQuestsGUI(player);
             }
-            e.getView().close();
+            if (Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName().equalsIgnoreCase(ChatColor.YELLOW + "Next Page")) {
+                int currentPlayerPage = Quests.playerPage.get(player);
+                //This line of code should never happen, but if it does then this line of code should fix it.
+                if(currentPlayerPage < 0) {Quests.playerPage.put(player, 0);QuestsCommand.openQuestsGUI(player);player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 3.0F, 0.5F);return;}
+                Quests.playerPage.put(player, currentPlayerPage+1);
+                QuestsCommand.openQuestsGUI(player);
+            }
         }
     }
 }
