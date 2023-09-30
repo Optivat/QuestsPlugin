@@ -20,10 +20,11 @@ public class QuestsMenuListener implements Listener {
         if (e.getView().getTitle().equalsIgnoreCase(ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Quests")) {
             e.setCancelled(true);
             //To prevent null in console
+            if(e.getRawSlot() > 54) {return;}
             ItemStack clickedItem = e.getInventory().getItem(e.getRawSlot());
-            if (clickedItem != null && clickedItem.hasItemMeta()) {return;}
+            if (clickedItem == null) {return;}
+            if (!clickedItem.hasItemMeta()) {return;}
             //If the user clicks on a quest
-            assert clickedItem != null;
             Player player = (Player) e.getWhoClicked();
             if (clickedItem.getType() == Material.WRITABLE_BOOK) {
 

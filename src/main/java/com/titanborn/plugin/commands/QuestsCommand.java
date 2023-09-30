@@ -89,9 +89,9 @@ public class QuestsCommand implements CommandExecutor {
         }*/
         List<QuestLog> quests = new ArrayList<>(Quests.totalQuestsMap.values());
         for (int x = 0; x < Quests.totalQuestsMap.values().size()-1; x++) {
-            if(slots == 44) {break;}
-            if (x > playerPage*44) {
-                inventory.setItem(x, quests.get(x).itemize());
+            if(slots == 45) {break;}
+            if (x >= playerPage*45) {
+                inventory.setItem(slots, quests.get(x).itemize());
                 slots++;
             }
         }
@@ -112,13 +112,15 @@ public class QuestsCommand implements CommandExecutor {
             skull.setItemMeta(skullMeta);
             inventory.setItem(45, skull);
         }
-        try {
-            textures.setSkin(new URL("https://textures.minecraft.net/texture/d34ef0638537222b20f480694dadc0f85fbe0759d581aa7fcdf2e43139377158"));
-        } catch (MalformedURLException e) {throw new RuntimeException(e);}
-        skullMeta.setOwnerProfile(profile);
-        skullMeta.setDisplayName(ChatColor.YELLOW + "Next Page");
-        skull.setItemMeta(skullMeta);
-        inventory.setItem(53, skull);
+        if (Quests.totalQuestsMap.values().size()-1 > (playerPage+1)*44) {
+            try {
+                textures.setSkin(new URL("https://textures.minecraft.net/texture/d34ef0638537222b20f480694dadc0f85fbe0759d581aa7fcdf2e43139377158"));
+            } catch (MalformedURLException e) {throw new RuntimeException(e);}
+            skullMeta.setOwnerProfile(profile);
+            skullMeta.setDisplayName(ChatColor.YELLOW + "Next Page");
+            skull.setItemMeta(skullMeta);
+            inventory.setItem(53, skull);
+        }
         player.openInventory(inventory);
     }
 }
