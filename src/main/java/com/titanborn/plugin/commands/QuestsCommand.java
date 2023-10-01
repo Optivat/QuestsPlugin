@@ -38,31 +38,62 @@ public class QuestsCommand implements CommandExecutor {
                         break;
                     case "create":
                         //To create quests in game, will be removed when JSON goes online.
-                        if(args.length == 5) {
-                            Quests.totalQuestsMap.put(args[1], new QuestLog(args[1], args[4], Integer.parseInt(args[2]), args[3], player.getLocation()));
-                            Quests.saveJson();
+                        if(args.length == 6) {
+                            if(args[1].equalsIgnoreCase("main")) {
+                                Quests.totalMainQuestsMap.put(args[2], new QuestLog(args[2], args[5], Integer.parseInt(args[3]), args[4], player.getLocation()));
+                                Quests.saveJson();
+                            } else if (args[1].equalsIgnoreCase("side")) {
+                                Quests.totalSideQuestsMap.put(args[2], new QuestLog(args[2], args[5], Integer.parseInt(args[3]), args[4], player.getLocation()));
+                                Quests.saveJson();
+                            } else {
+                                player.sendMessage(ChatColor.RED + "Invalid argument for create! The first arguement should be \"main\" or \"side\".");
+                            }
                         } else {
-                            player.sendMessage(ChatColor.RED + "Invalid argument for create! /quests create (name) (min level) (length) (description)");
+                            player.sendMessage(ChatColor.RED + "Invalid argument for create! /quests create (main/side) (name) (min level) (length) (description)");
                         }
                         break;
                     case "remove":
-                        if(args.length == 2) {
-                            if(Quests.totalQuestsMap.containsKey(args[1])) {
-                                Quests.totalQuestsMap.remove(args[1]);
-                                Quests.saveJson();
+                        if(args.length == 3) {
+                            if(args[1].equalsIgnoreCase("main")) {
+                                if(Quests.totalMainQuestsMap.containsKey(args[1])) {
+                                    Quests.totalMainQuestsMap.remove(args[1]);
+                                    Quests.saveJson();
+                                } else {
+                                    player.sendMessage(ChatColor.RED + "Invalid arguments for remove! The name is not a main quest.");
+                                }
+                            } else if (args[1].equalsIgnoreCase("side")) {
+                                if(Quests.totalSideQuestsMap.containsKey(args[1])) {
+                                    Quests.totalSideQuestsMap.remove(args[1]);
+                                    Quests.saveJson();
+                                } else {
+                                    player.sendMessage(ChatColor.RED + "Invalid arguments for remove! The name is not a side quest.");
+                                }
                             } else {
-                                player.sendMessage(ChatColor.RED + "Invalid arguments for remove! The name is not a quest.");
+                                player.sendMessage(ChatColor.RED + "Invalid argument for create! The first arguement should be \"main\" or \"side\".");
                             }
                         } else {
-                            player.sendMessage(ChatColor.RED + "Invalid arguments for remove! /quests remove (name)");
+                            player.sendMessage(ChatColor.RED + "Invalid arguments for remove! /quests remove (main/side) (name)");
                         }
                         break;
                     case "open":
-                        if(!Quests.playerPage.containsKey(player)) {
-                            Quests.playerPage.put(player, 0);
+                        if(!Quests.playerPageMain.containsKey(player)) {
+                            Quests.playerPageMain.put(player, 0);
+                        }
+                        if(!Quests.playerPageSide.containsKey(player)) {
+                            Quests.playerPageSide.put(player, 0);
+                        }
+                        if(args.length == 2) {
+                            if(args[1].equalsIgnoreCase("main")) {
+                                openQuestsGUI(player, "main");
+                            } else if (args[1].equalsIgnoreCase("side")) {
+                                openQuestsGUI(player, "side");
+                            } else {
+                                player.sendMessage(ChatColor.RED + "Invalid arguments for open! /quests open (main/side)");
+                            }
+                        } else {
+                            player.sendMessage(ChatColor.RED + "Invalid arguments for open! /quests open (main/side)");
                         }
                         //To open the GUI
-                        openQuestsGUI(player);
                         break;
                     default:
                         return false;
@@ -74,21 +105,29 @@ public class QuestsCommand implements CommandExecutor {
         }
         return false;
     }
-    public static void openQuestsGUI(Player player) {
-        int playerPage = Quests.playerPage.get(player);
-        Inventory inventory = Bukkit.createInventory(player, 54, ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Quests");
+    public static void openQuestsGUI(Player player, String string) {
+        int playerPage;
+        Inventory inventory;
+        List<QuestLog> quests;
+        if(string.equalsIgnoreCase("main")) {
+            inventory = Bukkit.createInventory(player, 54, ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Main Quests");
+            quests = new ArrayList<>(Quests.totalMainQuestsMap.values());
+            playerPage = Quests.playerPageMain.get(player);
+        } else if (string.equalsIgnoreCase("side")){
+            inventory = Bukkit.createInventory(player, 54, ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Side Quests");
+            quests = new ArrayList<>(Quests.totalSideQuestsMap.values());
+            playerPage = Quests.playerPageSide.get(player);
+        } else {
+            Bukkit.getLogger().severe("Error! Failed to open inventory at openQuestsGUI() in Quests plugin!");
+            return;
+        }
         ItemStack bSG = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta bSGMeta = bSG.getItemMeta();
         assert bSGMeta != null;
         bSGMeta.setDisplayName(ChatColor.BLACK.toString());
         bSG.setItemMeta(bSGMeta);
         int slots = 0;
-        /*for(QuestLog quest : Quests.totalQuestsMap.values()) {
-            inventory.setItem(slots, quest.itemize());
-            slots+=1;
-        }*/
-        List<QuestLog> quests = new ArrayList<>(Quests.totalQuestsMap.values());
-        for (int x = 0; x < Quests.totalQuestsMap.values().size()-1; x++) {
+        for (int x = 0; x < quests.size(); x++) {
             if(slots == 45) {break;}
             if (x >= playerPage*45) {
                 inventory.setItem(slots, quests.get(x).itemize());
@@ -112,7 +151,7 @@ public class QuestsCommand implements CommandExecutor {
             skull.setItemMeta(skullMeta);
             inventory.setItem(45, skull);
         }
-        if (Quests.totalQuestsMap.values().size()-1 > (playerPage+1)*44) {
+        if (quests.size() > (playerPage+1)*44) {
             try {
                 textures.setSkin(new URL("https://textures.minecraft.net/texture/d34ef0638537222b20f480694dadc0f85fbe0759d581aa7fcdf2e43139377158"));
             } catch (MalformedURLException e) {throw new RuntimeException(e);}

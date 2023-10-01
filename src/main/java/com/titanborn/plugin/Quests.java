@@ -21,27 +21,33 @@ import java.util.Map;
 
 public final class Quests extends JavaPlugin {
 
-    public static File totalQuestsFile;
+    public static File totalMainQuestsFile;
+    public static File totalSideQuestsFile;
+    public static File currentQuestSelectedFile;
     public static final Gson gson = new GsonBuilder().setPrettyPrinting().create();
-    public static Map<String, QuestLog> totalQuestsMap = new HashMap<>();
-    public static Map<Player, Integer> playerPage = new HashMap<>();
+    public static Map<String, QuestLog> totalMainQuestsMap = new HashMap<>();
+    public static Map<String, QuestLog> totalSideQuestsMap = new HashMap<>();
+    public static Map<String, QuestLog> currentQuestSelected = new HashMap<>();
+    public static Map<Player, Integer> playerPageMain = new HashMap<>();
+    public static Map<Player, Integer> playerPageSide = new HashMap<>();
 
     @Override
     public void onEnable() {
-        totalQuestsFile = new File(getDataFolder().getAbsolutePath() + "/quests.json");
+        totalMainQuestsFile = new File(getDataFolder().getAbsolutePath() + "/main_quests.json");
+        totalSideQuestsFile = new File(getDataFolder().getAbsolutePath() + "/side_quests.json");
+        currentQuestSelectedFile = new File(getDataFolder().getAbsolutePath() + "/player_selected_quests.json");
         //Initialization of JSON, might put in a separate class if needed.
 
         //First boot up of the plugin, it will create an empty json.
-        if (!totalQuestsFile.exists()) {
+        if (!totalMainQuestsFile.exists()) {
             try {
                 //Creates folder, then creates the file.
                 boolean mkdirs = new File(getDataFolder().getAbsolutePath()).mkdirs();
                 if(!mkdirs) {
                     this.getLogger().severe("Failed to make config folder in plugins folder!");
-                    this.getLogger().severe("DISABLING LOG PLUGIN...");
                 }
-                FileWriter fileWriter = new FileWriter(totalQuestsFile);
-                fileWriter.write(totalQuestsMap.toString());
+                FileWriter fileWriter = new FileWriter(totalMainQuestsFile);
+                fileWriter.write(totalMainQuestsMap.toString());
                 fileWriter.close();
             } catch (IOException e) {
                 throw new RuntimeException(e);
@@ -51,12 +57,60 @@ public final class Quests extends JavaPlugin {
             try {
                 //Using an experimental feature, may cause errors in the future
                 @SuppressWarnings("UnstableApiUsage") Type playerQuestType = new TypeToken<Map<String, QuestLog>>(){}.getType();
-                totalQuestsMap = gson.fromJson(new FileReader(totalQuestsFile), playerQuestType);
-                if(totalQuestsFile == null) {
-                    totalQuestsMap = new HashMap<>();
+                totalMainQuestsMap = gson.fromJson(new FileReader(totalMainQuestsFile), playerQuestType);
+                if(totalMainQuestsFile == null) {
+                    totalMainQuestsMap = new HashMap<>();
                 }
             } catch (FileNotFoundException e) {
                 this.getLogger().severe("Failed to find \"quests.json\" in the config directory of the plugin.");
+                throw new RuntimeException(e);
+            }
+        }
+
+        if (!totalSideQuestsFile.exists()) {
+            try {
+                //Creates folder, then creates the file.
+                FileWriter fileWriter = new FileWriter(totalSideQuestsFile);
+                fileWriter.write(totalSideQuestsMap.toString());
+                fileWriter.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            //After first boot up, it will always go to this line of code.
+            try {
+                //Using an experimental feature, may cause errors in the future
+                @SuppressWarnings("UnstableApiUsage") Type playerQuestType = new TypeToken<Map<String, QuestLog>>(){}.getType();
+                totalSideQuestsMap = gson.fromJson(new FileReader(totalSideQuestsFile), playerQuestType);
+                if(totalSideQuestsFile == null) {
+                    totalSideQuestsMap = new HashMap<>();
+                }
+            } catch (FileNotFoundException e) {
+                this.getLogger().severe("Failed to find \"side_quests.json\" in the config directory of the plugin.");
+                throw new RuntimeException(e);
+            }
+        }
+
+        if (!currentQuestSelectedFile.exists()) {
+            try {
+                //Creates folder, then creates the file.
+                FileWriter fileWriter = new FileWriter(currentQuestSelectedFile);
+                fileWriter.write(currentQuestSelectedFile.toString());
+                fileWriter.close();
+            } catch (IOException e) {
+                throw new RuntimeException(e);
+            }
+        } else {
+            //After first boot up, it will always go to this line of code.
+            try {
+                //Using an experimental feature, may cause errors in the future
+                @SuppressWarnings("UnstableApiUsage") Type playerQuestType = new TypeToken<Map<String, QuestLog>>(){}.getType();
+                currentQuestSelected = gson.fromJson(new FileReader(currentQuestSelectedFile), playerQuestType);
+                if(currentQuestSelectedFile == null) {
+                    currentQuestSelected = new HashMap<>();
+                }
+            } catch (FileNotFoundException e) {
+                this.getLogger().severe("Failed to find \"side_quests.json\" in the config directory of the plugin.");
                 throw new RuntimeException(e);
             }
         }
@@ -71,14 +125,29 @@ public final class Quests extends JavaPlugin {
     }
 
     public static void saveJson() {
-        final String jsonQuests = gson.toJson(totalQuestsMap);
-        boolean fileDeletion = totalQuestsFile.delete();
+        final String jsonMainQuests = gson.toJson(totalMainQuestsMap);
+        final String jsonSideQuests = gson.toJson(totalSideQuestsMap);
+        final String jsonCurrentSelectedQuests = gson.toJson(currentQuestSelected);
+        // "Goofy ahhh coding."
+        boolean fileDeletion = totalMainQuestsFile.delete();
         if(!fileDeletion) {
-            Bukkit.getLogger().severe("Failed to delete file \"" + totalQuestsFile.getName() + "\" in method saveJson()");
+            Bukkit.getLogger().severe("Failed to delete file \"" + totalMainQuestsFile.getName() + "\" in method saveJson()");
+            return;
+        }
+        fileDeletion = totalSideQuestsFile.delete();
+        if(!fileDeletion) {
+            Bukkit.getLogger().severe("Failed to delete file \"" + totalSideQuestsFile.getName() + "\" in method saveJson()");
+            return;
+        }
+        fileDeletion = currentQuestSelectedFile.delete();
+        if(!fileDeletion) {
+            Bukkit.getLogger().severe("Failed to delete file \"" + currentQuestSelectedFile.getName() + "\" in method saveJson()");
             return;
         }
         try {
-            Files.write(totalQuestsFile.toPath(), jsonQuests.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+            Files.write(totalMainQuestsFile.toPath(), jsonMainQuests.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+            Files.write(totalSideQuestsFile.toPath(), jsonSideQuests.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
+            Files.write(currentQuestSelectedFile.toPath(), jsonCurrentSelectedQuests.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

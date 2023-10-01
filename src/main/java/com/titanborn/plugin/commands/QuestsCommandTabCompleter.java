@@ -12,14 +12,19 @@ public class QuestsCommandTabCompleter implements TabCompleter {
     @SuppressWarnings("NullableProblems")
     @Override
     public List<String> onTabComplete(CommandSender sender, Command command, String label, String[] args) {
+        List<String> strings = new ArrayList<>();
         if(args.length == 1) {
-            List<String> strings = new ArrayList<>();
             strings.add("update");
             strings.add("create");
             strings.add("open");
             strings.add("remove");
             return strings;
         }
-        return null;
+        if(args.length == 2 && (args[0].equalsIgnoreCase("open") || args[0].equalsIgnoreCase("create") || args[0].equalsIgnoreCase("remove"))) {
+            strings.add("main");
+            strings.add("side");
+            return strings;
+        }
+        return strings;
     }
 }

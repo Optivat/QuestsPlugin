@@ -1,20 +1,54 @@
 package com.titanborn.plugin.events;
 
+import com.titanborn.plugin.QuestLog;
+import com.titanborn.plugin.Quests;
+import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.World;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.block.Action;
 import org.bukkit.event.player.PlayerInteractEvent;
+import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.util.Objects;
 
 public class GenericListener implements Listener {
+    //To maintain ghost blocks, it does NOT work... This is depresso expresso
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockClick(PlayerInteractEvent e){
         if(e.getAction() == Action.RIGHT_CLICK_BLOCK){
-            if (Objects.requireNonNull(e.getClickedBlock()).getType() == Material.WHITE_STAINED_GLASS) {
+            if (e.getPlayer().getWorld().getBlockAt(Objects.requireNonNull(e.getClickedBlock()).getLocation()).getType() == Material.WHITE_STAINED_GLASS) {
                 e.getPlayer().sendBlockChange(e.getClickedBlock().getLocation(), Material.WHITE_STAINED_GLASS.createBlockData());
+            }
+        }
+    }
+    //To maintain current quest
+    @EventHandler
+    public void onPlayerMove(PlayerMoveEvent e) {
+        if (Quests.currentQuestSelected.containsKey(String.valueOf(e.getPlayer().getUniqueId()))) {
+            Player player = e.getPlayer();
+            QuestLog questLog = Quests.currentQuestSelected.get(String.valueOf(e.getPlayer().getUniqueId()));
+            Location location = Location.deserialize(questLog.location);
+            int x = location.getBlockX();
+            int y = location.getBlockY() - 30;
+            int z = location.getBlockZ();
+
+            World world = location.getWorld();
+
+            player.sendBlockChange(new Location(world, x, y, z), Material.BEACON.createBlockData());
+            for (int i = 0; i <= 29; ++i) {
+                assert world != null;
+                if (world.getBlockAt(x, (y + 1) + i, z).getType() != Material.AIR) {
+                    player.sendBlockChange(new Location(world, x, (y + 1) + i, z), Material.WHITE_STAINED_GLASS.createBlockData());
+                }
+            }
+            for (int xPoint = x - 1; xPoint <= x + 1; xPoint++) {
+                for (int zPoint = z - 1; zPoint <= z + 1; zPoint++) {
+                    player.sendBlockChange(new Location(world, xPoint, y - 1, zPoint), Material.IRON_BLOCK.createBlockData());
+                }
             }
         }
     }

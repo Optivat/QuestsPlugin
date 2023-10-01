@@ -67,10 +67,18 @@ public class QuestLog {
         return questItem;
     }
 
-    public static QuestLog getQuestByMetaName(String name) {
-        for(QuestLog questLog : Quests.totalQuestsMap.values()) {
-            if(Objects.requireNonNull(questLog.itemize().getItemMeta()).getDisplayName().equalsIgnoreCase(name)) {
-                return questLog;
+    public static QuestLog getQuestByMetaName(String name, String string) {
+        if(string.equalsIgnoreCase("main")) {
+            for(QuestLog questLog : Quests.totalMainQuestsMap.values()) {
+                if(Objects.requireNonNull(questLog.itemize().getItemMeta()).getDisplayName().equalsIgnoreCase(name)) {
+                    return questLog;
+                }
+            }
+        } else if (string.equalsIgnoreCase("side")) {
+            for(QuestLog questLog : Quests.totalSideQuestsMap.values()) {
+                if(Objects.requireNonNull(questLog.itemize().getItemMeta()).getDisplayName().equalsIgnoreCase(name)) {
+                    return questLog;
+                }
             }
         }
         Bukkit.getLogger().info("NULL for: Method, getQuestByName()");
