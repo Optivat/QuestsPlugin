@@ -24,7 +24,7 @@ import java.util.UUID;
 
 public class QuestsCommand implements CommandExecutor {
 
-    // “I'll keep all my emotions right here, and then one day I'll die” - John Malaney
+    // Suppressing this problems like how I supress stress in real life...
     @SuppressWarnings("NullableProblems")
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {

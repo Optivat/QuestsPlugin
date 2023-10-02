@@ -15,8 +15,15 @@ import org.bukkit.event.player.PlayerMoveEvent;
 
 import java.util.Objects;
 
+/**
+ * To listen for generic events that I decided aren't fit for their own separate classes.
+ */
 public class GenericListener implements Listener {
     //To maintain ghost blocks, it does NOT work... This is depresso expresso
+    /**
+     * To listen for generic events that I decided aren't fit for their own separate classes.
+     */
+    @SuppressWarnings("checkstyle:DesignForExtension")
     @EventHandler(priority = EventPriority.HIGHEST)
     public void onBlockClick(PlayerInteractEvent e){
         if(e.getAction() == Action.RIGHT_CLICK_BLOCK){
