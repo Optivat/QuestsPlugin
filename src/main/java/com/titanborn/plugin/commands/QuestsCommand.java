@@ -8,14 +8,17 @@ import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.Inventory;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 import org.bukkit.inventory.meta.SkullMeta;
 import org.bukkit.profile.PlayerProfile;
 import org.bukkit.profile.PlayerTextures;
 
+import java.lang.reflect.Array;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.ArrayList;
@@ -40,7 +43,7 @@ public class QuestsCommand implements CommandExecutor {
                         //To create quests in game, will be removed when JSON goes online.
                         if(args.length == 6) {
                             if(args[1].equalsIgnoreCase("main")) {
-                                Quests.totalMainQuestsMap.put(args[2], new QuestLog(args[2], args[5], Integer.parseInt(args[3]), args[4], player.getLocation()));
+                                Quests.totalMainQuestsMap.put(args[2], new QuestLog(args[2].replace("_", " ").trim(), args[5].replace("\\_", "{]-+-oj90pojsnuf9").replace("_", " ").replace("{]-+-oj90pojsnuf9", "_"), Integer.parseInt(args[3]), args[4], player.getLocation()));
                                 Quests.saveJson();
                             } else if (args[1].equalsIgnoreCase("side")) {
                                 Quests.totalSideQuestsMap.put(args[2], new QuestLog(args[2], args[5], Integer.parseInt(args[3]), args[4], player.getLocation()));
@@ -84,9 +87,9 @@ public class QuestsCommand implements CommandExecutor {
                         }
                         if(args.length == 2) {
                             if(args[1].equalsIgnoreCase("main")) {
-                                openQuestsGUI(player, "main");
+                                openMainQuestsGUI(player);
                             } else if (args[1].equalsIgnoreCase("side")) {
-                                openQuestsGUI(player, "side");
+                                openSideQuestsGUI(player);
                             } else {
                                 player.sendMessage(ChatColor.RED + "Invalid arguments for open! /quests open (main/side)");
                             }
@@ -105,22 +108,14 @@ public class QuestsCommand implements CommandExecutor {
         }
         return false;
     }
-    public static void openQuestsGUI(Player player, String string) {
+    public static void openSideQuestsGUI(Player player) {
         int playerPage;
         Inventory inventory;
         List<QuestLog> quests;
-        if(string.equalsIgnoreCase("main")) {
-            inventory = Bukkit.createInventory(player, 54, ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Main Quests");
-            quests = new ArrayList<>(Quests.totalMainQuestsMap.values());
-            playerPage = Quests.playerPageMain.get(player);
-        } else if (string.equalsIgnoreCase("side")){
-            inventory = Bukkit.createInventory(player, 54, ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Side Quests");
-            quests = new ArrayList<>(Quests.totalSideQuestsMap.values());
-            playerPage = Quests.playerPageSide.get(player);
-        } else {
-            Bukkit.getLogger().severe("Error! Failed to open inventory at openQuestsGUI() in Quests plugin!");
-            return;
-        }
+        inventory = Bukkit.createInventory(player, 54, ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Side Quests");
+        quests = new ArrayList<>(Quests.totalSideQuestsMap.values());
+        playerPage = Quests.playerPageSide.get(player);
+
         ItemStack bSG = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta bSGMeta = bSG.getItemMeta();
         assert bSGMeta != null;
@@ -160,6 +155,165 @@ public class QuestsCommand implements CommandExecutor {
             skull.setItemMeta(skullMeta);
             inventory.setItem(53, skull);
         }
+        ItemStack border = new ItemStack(Material.BARRIER);
+        ItemMeta borderMeta = border.getItemMeta();
+        if(borderMeta == null) {Bukkit.getLogger().info("Close Barrier Meta is null? Ask Optivat to fix this, send him the log of the console."); return;}
+        borderMeta.setDisplayName(ChatColor.RED + "Close");
+        border.setItemMeta(borderMeta);
+        inventory.setItem(49, border);
+
         player.openInventory(inventory);
+    }
+    public static void openMainQuestsGUI(Player player) {
+        int playerPage;
+        Inventory inventory;
+        List<QuestLog> quests;
+        inventory = Bukkit.createInventory(player, 54, ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Main Quests");
+        quests = new ArrayList<>(Quests.totalMainQuestsMap.values());
+        playerPage = Quests.playerPageMain.get(player);
+
+        ItemStack bSG = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+        ItemMeta bSGMeta = bSG.getItemMeta();
+        assert bSGMeta != null;
+        bSGMeta.setDisplayName(ChatColor.BLACK.toString());
+        bSG.setItemMeta(bSGMeta);
+
+        ItemStack rG = new ItemStack(Material.RED_STAINED_GLASS);
+        ItemMeta rGMeta = rG.getItemMeta();
+        assert rGMeta != null;
+        rGMeta.setDisplayName(ChatColor.RED + "Coming soon...");
+        rG.setItemMeta(rGMeta);
+
+        ItemStack gG = new ItemStack(Material.GRAY_STAINED_GLASS);
+        ItemMeta gGMeta = gG.getItemMeta();
+        assert gGMeta != null;
+        gGMeta.setDisplayName(ChatColor.MAGIC + "L bozo");
+        gG.setItemMeta(gGMeta);
+
+        int slots = 0;/*
+        for (int x = 0; x < quests.size(); x++) {
+            if(slots == 53) {break;}
+            if (x >= playerPage*45) {
+                inventory.setItem(slots, quests.get(x).itemize());
+                slots++;
+            }
+        }*/
+        ArrayList<ItemStack> tempOrganization = new ArrayList<>();
+        for (int i = 0; i < 8; i += 2) {
+            for (int x = i; x <= 27 + i; x += 9) {
+                int value = (tempOrganization.size());
+                setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, value);
+                if (x == (27 + i)) {
+                    value = (tempOrganization.size());
+                    x++;
+                    setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, value);
+                }
+            }
+            i += 2;
+            for (int x = 27 + i; x >= i; x -= 9) {
+                int value = (tempOrganization.size());
+                setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, value);
+                if (x == i) {
+                    value = (tempOrganization.size());
+                    x++;
+                    setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, value);
+                }
+            }
+        }
+            for (int x = 8; x <= 53; x += 9) {
+                setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, tempOrganization.size());
+            }
+
+            for (int x = 0; x < 54; x++) {
+                //Very lazy
+                //There is a lot of commented code that does not work in 1.20.2 but works in 1.19 and I need to investigate into why or find a different solution
+                if (!(x == 0 || (x >= 2 && x <= 4) || (x >= 6 && x <= 8) || x == 9 || x == 11 || x == 13 || x == 15 || x == 17 || x == 18 || x == 20 || x == 22 || x == 24 || x == 26 || (x >= 27 && x <= 29) || (x >= 31 && x <= 33) || x == 35 || x == 44 || x == 53) && !(x == 48 || x == 49 || x == 50)) {
+                    inventory.setItem(x, bSG);
+                } else if (x == 48 || x == 49 || x == 50) {
+                    ItemStack skull = new ItemStack(Material.ARROW, 1);
+                    ItemMeta skullMeta = skull.getItemMeta();
+                    /*ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
+                    SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
+                    */assert skullMeta != null;/*
+                    PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());
+                    PlayerTextures textures = profile.getTextures();
+
+                    */
+                    ItemStack border = new ItemStack(Material.BARRIER);
+                    ItemMeta borderMeta = border.getItemMeta();
+                    if(borderMeta == null) {Bukkit.getLogger().info("Close Barrier Meta is null? Ask Optivat to fix this, send him the log of the console."); return;}
+                    borderMeta.setDisplayName(ChatColor.RED + "Close");
+                    border.setItemMeta(borderMeta);
+                    inventory.setItem(49, border);
+
+                    if (playerPage > 0) {
+                        /*
+                        try {
+                            textures.setSkin(new URL("https://textures.minecraft.net/texture/f7aacad193e2226971ed95302dba433438be4644fbab5ebf818054061667fbe2"));
+                        } catch (MalformedURLException e) {
+                            throw new RuntimeException(e);
+                        }
+                        skullMeta.setOwnerProfile(profile);*/
+                        skullMeta.setDisplayName(ChatColor.YELLOW + "Previous Page");
+                        skull.setItemMeta(skullMeta);
+                        inventory.setItem(48, skull);
+                    } else {
+                        inventory.setItem(x, bSG);
+                    }
+                    if (playerPage < quests.size()/25) {
+                        /*try {
+                            textures.setSkin(new URL("https://textures.minecraft.net/texture/d34ef0638537222b20f480694dadc0f85fbe0759d581aa7fcdf2e43139377158"));
+                        } catch (MalformedURLException e) {
+                            throw new RuntimeException(e);
+                        }
+                        skullMeta.setOwnerProfile(profile);*/
+                        skullMeta.setDisplayName(ChatColor.YELLOW + "Next Page");
+                        skull.setItemMeta(skullMeta);
+                        inventory.setItem(50, skull);
+                    } else {
+                        inventory.setItem(x, bSG);
+                    }
+                }
+            }
+            player.openInventory(inventory);
+    }
+
+    private static void setItemInMainQuests(int playerPage, Inventory inventory, List<QuestLog> quests, ItemStack rG, ArrayList<ItemStack> tempOrganization, int x, int value) {
+        int amount = (value + (playerPage*25));
+        if (quests.get(value) != null && amount < quests.size()) {
+            ItemStack questBook = quests.get(amount).itemize();
+            ItemMeta questBookMeta = questBook.getItemMeta();
+            if(questBookMeta == null) {Bukkit.getLogger().info("Quest Book Meta is null? Ask Optivat to fix this, send him the log of the console."); return;}
+            questBook.setAmount(amount);
+            if (amount == 0) {
+                questBook.setType(Material.PAPER);
+                questBook.setAmount(1);
+            }
+            if(playerPage != 0 && amount%((playerPage*25)) == 0 && amount%((playerPage*50)) != 0) {
+                questBook.setType(Material.PAPER);
+                questBook.setAmount(1);
+                tempOrganization.add(questBook);
+            } else {
+                tempOrganization.add(questBook);
+            }
+            int change = 50;
+            if(amount/change >= 1 && amount%change != 0) {
+                questBook.setType(Material.WRITTEN_BOOK);
+                questBook.setAmount((amount) - change);
+                questBookMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS, ItemFlag.HIDE_ATTRIBUTES);
+                for(Enchantment echant : questBookMeta.getEnchants().keySet()) {
+                    questBookMeta.removeEnchant(echant);
+                }
+            }
+            if(amount%5 == 0) {
+                questBookMeta.addEnchant(Enchantment.DURABILITY, 1, true);
+                questBookMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
+            }
+            questBook.setItemMeta(questBookMeta);
+            inventory.setItem(x, questBook);
+        } else {
+            tempOrganization.add(rG);
+            inventory.setItem(x, rG);
+        }
     }
 }

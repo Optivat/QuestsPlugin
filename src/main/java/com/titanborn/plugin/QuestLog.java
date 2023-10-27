@@ -39,7 +39,7 @@ public class QuestLog {
         ItemStack questItem = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta itemMeta = questItem.getItemMeta();
         assert itemMeta != null;
-        itemMeta.setDisplayName(ChatColor.YELLOW + name.replace("_", " ").trim());
+        itemMeta.setDisplayName(ChatColor.YELLOW + name);
         List<String> lore = new ArrayList<>();
         lore.add("");
         //This will change, to where it will actually check the level.
@@ -47,7 +47,7 @@ public class QuestLog {
         lore.add(ChatColor.GRAY + "- Length: " + ChatColor.BOLD + length);
         lore.add("");
         //Creating the description for the lore
-        String[] descriptionSplit = description.replace("_", " ").split("\\s");
+        String[] descriptionSplit = description.split("\\s");
         StringBuilder loreline = new StringBuilder();
         for(String string : descriptionSplit) {
             loreline.append(" ").append(string);

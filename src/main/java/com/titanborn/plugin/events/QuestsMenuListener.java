@@ -31,16 +31,19 @@ public class QuestsMenuListener implements Listener {
             if (Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName().equalsIgnoreCase(ChatColor.YELLOW + "Previous Page")) {
                 int currentPlayerPage = Quests.playerPageMain.get(player);
                 //This line of code should never happen, but if it does then this line of code should fix it.
-                if(currentPlayerPage <= 0) {Quests.playerPageMain.put(player, 0);QuestsCommand.openQuestsGUI(player, "main");player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 3.0F, 0.5F);return;}
+                if(currentPlayerPage <= 0) {Quests.playerPageMain.put(player, 0);QuestsCommand.openMainQuestsGUI(player);player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 3.0F, 0.5F);return;}
                 Quests.playerPageMain.put(player, currentPlayerPage-1);
-                QuestsCommand.openQuestsGUI(player, "main");
+                QuestsCommand.openMainQuestsGUI(player);
             }
             if (Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName().equalsIgnoreCase(ChatColor.YELLOW + "Next Page")) {
                 int currentPlayerPage = Quests.playerPageMain.get(player);
                 //This line of code should never happen, but if it does then this line of code should fix it.
-                if(currentPlayerPage < 0) {Quests.playerPageMain.put(player, 0);QuestsCommand.openQuestsGUI(player, "main");player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 3.0F, 0.5F);return;}
+                if(currentPlayerPage < 0) {Quests.playerPageMain.put(player, 0);QuestsCommand.openMainQuestsGUI(player);player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 3.0F, 0.5F);return;}
                 Quests.playerPageMain.put(player, currentPlayerPage+1);
-                QuestsCommand.openQuestsGUI(player, "main");
+                QuestsCommand.openMainQuestsGUI(player);
+            }
+            if (Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName().equalsIgnoreCase(ChatColor.RED + "Close")) {
+                e.getView().close();
             }
         }
 
@@ -58,16 +61,19 @@ public class QuestsMenuListener implements Listener {
             if (Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName().equalsIgnoreCase(ChatColor.YELLOW + "Previous Page")) {
                 int currentPlayerPage = Quests.playerPageSide.get(player);
                 //This line of code should never happen, but if it does then this line of code should fix it.
-                if(currentPlayerPage <= 0) {Quests.playerPageSide.put(player, 0);QuestsCommand.openQuestsGUI(player, "side");player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 3.0F, 0.5F);return;}
+                if(currentPlayerPage <= 0) {Quests.playerPageSide.put(player, 0);QuestsCommand.openSideQuestsGUI(player);player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 3.0F, 0.5F);return;}
                 Quests.playerPageSide.put(player, currentPlayerPage-1);
-                QuestsCommand.openQuestsGUI(player, "side");
+                QuestsCommand.openSideQuestsGUI(player);
             }
             if (Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName().equalsIgnoreCase(ChatColor.YELLOW + "Next Page")) {
                 int currentPlayerPage = Quests.playerPageSide.get(player);
                 //This line of code should never happen, but if it does then this line of code should fix it.
-                if(currentPlayerPage < 0) {Quests.playerPageSide.put(player, 0);QuestsCommand.openQuestsGUI(player, "side");player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 3.0F, 0.5F);return;}
+                if(currentPlayerPage < 0) {Quests.playerPageSide.put(player, 0);QuestsCommand.openSideQuestsGUI(player);player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 3.0F, 0.5F);return;}
                 Quests.playerPageSide.put(player, currentPlayerPage+1);
-                QuestsCommand.openQuestsGUI(player, "side");
+                QuestsCommand.openSideQuestsGUI(player);
+            }
+            if (Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName().equalsIgnoreCase(ChatColor.RED + "Close")) {
+                e.getView().close();
             }
         }
     }
