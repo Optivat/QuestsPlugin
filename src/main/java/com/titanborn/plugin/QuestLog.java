@@ -36,9 +36,9 @@ public class QuestLog {
     }
     public QuestLog () {
         this.name = "null";
-        this.description = "Uh oh! Optivat made a mistake!";
+        this.description = "Change me!";
         this.minLevel = Integer.MAX_VALUE;
-        this.length = ChatColor.BOLD.toString() + ChatColor.MAGIC + "Help me";
+        this.length = ChatColor.BOLD.toString() + ChatColor.MAGIC + "Change me!";
         this.location = null;
     }
 
