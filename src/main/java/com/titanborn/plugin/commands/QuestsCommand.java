@@ -4,6 +4,7 @@ import com.titanborn.plugin.QuestLog;
 import com.titanborn.plugin.Quests;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -16,7 +17,9 @@ import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
+import java.util.Objects;
 
 public class QuestsCommand implements CommandExecutor {
 
@@ -33,20 +36,24 @@ public class QuestsCommand implements CommandExecutor {
                         Quests.saveJson();
                         break;
                     case "create":
-                        //To create quests in game, will be removed when JSON goes online.
-                        if(args.length == 6) {
+                        if(!Quests.currentQuestCreation.containsKey(player)) {
+                            Quests.currentQuestCreation.put(player, new QuestLog());
+                        }
+                        QuestsCommand.openQuestsCreationGUI(player, Quests.currentQuestCreation.get(player));
+                        //This comment should be temporary and be removed once the new quest creation is done.
+                        /*if(args.length == 6) {
                             if(args[1].equalsIgnoreCase("main")) {
-                                Quests.totalMainQuestsMap.put(args[2], new QuestLog(args[2].replace("_", " ").trim(), args[5].replace("\\_", "{]-+-oj90pojsnuf9").replace("_", " ").replace("{]-+-oj90pojsnuf9", "_"), Integer.parseInt(args[3]), args[4], player.getLocation()));
+                                Quests.totalMainQuestsMap.put(args[2], new QuestLog(true, args[2].replace("_", " ").trim(), args[5].replace("\\_", "{]-+-oj90pojsnuf9").replace("_", " ").replace("{]-+-oj90pojsnuf9", "_"), Integer.parseInt(args[3]), args[4], player.getLocation()));
                                 Quests.saveJson();
                             } else if (args[1].equalsIgnoreCase("side")) {
-                                Quests.totalSideQuestsMap.put(args[2], new QuestLog(args[2], args[5], Integer.parseInt(args[3]), args[4], player.getLocation()));
+                                QuestsCommand.openQuestsCreationGUI(player, new QuestLog());
                                 Quests.saveJson();
                             } else {
                                 player.sendMessage(ChatColor.RED + "Invalid argument for create! The first argument should be \"main\" or \"side\".");
                             }
                         } else {
                             player.sendMessage(ChatColor.RED + "Invalid argument for create! /quests create (main/side) (name) (min level) (length) (description)");
-                        }
+                        }*/
                         break;
                     case "remove":
                         if(args.length == 3) {
@@ -340,5 +347,140 @@ public class QuestsCommand implements CommandExecutor {
             tempOrganization.add(rG);
             inventory.setItem(x, rG);
         }
+    }
+    public static void openQuestsCreationGUI(Player player, QuestLog questLog) {
+        Inventory inventory = Bukkit.createInventory(player, 54, ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Quest Creation");
+
+        ItemStack bSG = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
+        ItemMeta bSGMeta = bSG.getItemMeta();
+        assert bSGMeta != null;
+        bSGMeta.setDisplayName(ChatColor.BLACK.toString());
+        bSG.setItemMeta(bSGMeta);
+
+        for(int x = 0; x < 54; x++) {
+            inventory.setItem(x, bSG);
+        }
+
+        ItemStack wool;
+        ItemMeta woolMeta;
+        if(questLog.main) {
+            wool = new ItemStack(Material.GREEN_WOOL);
+            woolMeta = wool.getItemMeta();
+            assert woolMeta != null;
+            woolMeta.setDisplayName(ChatColor.GREEN + "Click on me to change quest type, currently: " + ChatColor.BOLD + "Main");
+            wool.setItemMeta(woolMeta);
+        } else {
+            wool = new ItemStack(Material.RED_WOOL);
+            woolMeta = wool.getItemMeta();
+            assert woolMeta != null;
+            woolMeta.setDisplayName(ChatColor.RED + "Click on me to change quest type, currently: " + ChatColor.BOLD + "Side");
+            wool.setItemMeta(woolMeta);
+        }
+        inventory.setItem(11, wool);
+
+        ItemStack sign = new ItemStack(Material.OAK_SIGN);
+        ItemMeta signMeta = sign.getItemMeta();
+        assert signMeta != null;
+        signMeta.setDisplayName("Click on me to change name, currently: " + questLog.name);
+        sign.setItemMeta(signMeta);
+
+        inventory.setItem(13, sign);
+
+        ItemStack darkOakSign = new ItemStack(Material.DARK_OAK_SIGN);
+        ItemMeta darkOakSignMeta = darkOakSign.getItemMeta();
+        assert darkOakSignMeta != null;
+        darkOakSignMeta.setDisplayName("Click on me to change description, currently:");
+        List<String> lore = new ArrayList<>();
+        lore.add("");
+        //Creating the description for the lore
+        String[] descriptionSplit = questLog.description.split("\\s");
+        StringBuilder loreline = new StringBuilder();
+        for(String string : descriptionSplit) {
+            loreline.append(" ").append(string);
+            if(loreline.toString().length() > 25) {
+                lore.add(ChatColor.GRAY + loreline.toString().trim());
+                loreline = new StringBuilder();
+            }
+        }
+        if(!loreline.toString().equalsIgnoreCase("")) {
+            lore.add(ChatColor.GRAY + loreline.toString().trim());
+        }
+        darkOakSignMeta.setLore(lore);
+        darkOakSign.setItemMeta(darkOakSignMeta);
+
+        inventory.setItem(15, darkOakSign);
+
+        ItemStack ironSword = new ItemStack(Material.IRON_SWORD);
+        ItemMeta ironSwordMeta = ironSword.getItemMeta();
+        assert ironSwordMeta != null;
+        ironSwordMeta.setDisplayName("Click on me to change combat level requirement, currently: " + questLog.minLevel);
+        ironSword.setItemMeta(ironSwordMeta);
+
+        inventory.setItem(38, ironSword);
+
+        ItemStack concrete;
+        ItemMeta concreteMeta;
+        if(questLog.length.equalsIgnoreCase("SHORT")) {
+            concrete = new ItemStack(Material.GREEN_CONCRETE);
+            concreteMeta = concrete.getItemMeta();
+            assert concreteMeta != null;
+            concreteMeta.setDisplayName("Click on me to change length, currently: " + questLog.length);
+            concrete.setItemMeta(concreteMeta);
+        } else if (questLog.length.equalsIgnoreCase("MEDIUM")) {
+            concrete = new ItemStack(Material.YELLOW_CONCRETE);
+            concreteMeta = concrete.getItemMeta();
+            assert concreteMeta != null;
+            concreteMeta.setDisplayName("Click on me to change length, currently: " + questLog.length);
+            concrete.setItemMeta(concreteMeta);
+        } else if(questLog.length.equalsIgnoreCase("LONG")) {
+            concrete = new ItemStack(Material.RED_CONCRETE);
+            concreteMeta = concrete.getItemMeta();
+            assert concreteMeta != null;
+            concreteMeta.setDisplayName("Click on me to change length, currently: " + questLog.length);
+            concrete.setItemMeta(concreteMeta);
+        } else {
+            concrete = new ItemStack(Material.BLACK_CONCRETE);
+            concreteMeta = concrete.getItemMeta();
+            assert concreteMeta != null;
+            concreteMeta.setDisplayName("Click on me to change length, currently: " + questLog.length);
+            concrete.setItemMeta(concreteMeta);
+        }
+
+        inventory.setItem(40, concrete);
+
+        ItemStack skull = new ItemStack(Material.SKELETON_SKULL);
+        ItemMeta skullMeta = skull.getItemMeta();
+        assert skullMeta != null;
+        skullMeta.setDisplayName("Click to select entity for location, default is your location.");
+        Location loc;
+        if(questLog.location == null) {
+            loc = player.getLocation();
+            skullMeta.setLore(Arrays.asList("", ChatColor.GRAY + "Currently selected location: ",
+                    ChatColor.GOLD + "(" + Objects.requireNonNull(loc.getWorld()).getName() + " , " + loc.getBlockX() + " , " + loc.getBlockY() + " , " + loc.getBlockZ() + ")"));
+        } else {
+            loc = Location.deserialize(questLog.location);
+            skullMeta.setLore(Arrays.asList("", ChatColor.GRAY + "Currently selected location: ",
+                    ChatColor.GOLD + "(" + Objects.requireNonNull(loc.getWorld()).getName() + " , " + loc.getBlockX() + " , " + loc.getBlockY() + " , " + loc.getBlockZ() + ")"));
+        }
+        skull.setItemMeta(skullMeta);
+
+        inventory.setItem(42, skull);
+
+        ItemStack border = new ItemStack(Material.BARRIER);
+        ItemMeta borderMeta = border.getItemMeta();
+        assert borderMeta != null;
+        borderMeta.setDisplayName(ChatColor.RED + "Close");
+        border.setItemMeta(borderMeta);
+        inventory.setItem(49, border);
+
+        ItemStack greenDye = new ItemStack(Material.GREEN_DYE);
+        ItemMeta greenDyeMeta = greenDye.getItemMeta();
+        assert greenDyeMeta != null;
+        greenDyeMeta.setDisplayName(ChatColor.GREEN + "Create quest");
+        greenDye.setItemMeta(greenDyeMeta);
+        inventory.setItem(4, greenDye);
+
+        player.openInventory(inventory);
+
     }
 }

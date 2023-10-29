@@ -30,6 +30,7 @@ public final class Quests extends JavaPlugin {
     public static Map<String, QuestLog> currentQuestSelected = new HashMap<>();
     public static Map<Player, Integer> playerPageMain = new HashMap<>();
     public static Map<Player, Integer> playerPageSide = new HashMap<>();
+    public static Map<Player, QuestLog> currentQuestCreation = new HashMap<>();
 
     @Override
     public void onEnable() {

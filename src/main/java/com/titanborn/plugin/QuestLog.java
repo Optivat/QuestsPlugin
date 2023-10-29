@@ -18,21 +18,24 @@ public class QuestLog {
     public int minLevel;
     public String length;
     public Map<String, Object> location;
+    public boolean main;
 
-    public QuestLog(String name, String description, int minLevel, String length, Location location) {
+    public QuestLog(boolean main, String name, String description, int minLevel, String length, Location location) {
         this.name = name;
         this.description = description;
         this.minLevel = minLevel;
         this.length = length;
         this.location = location.serialize();
+        this.main = main;
     }
     @SuppressWarnings("unused")
-    public QuestLog(String name, String description, int minLevel, String length, Map<String, Object> location) {
+    public QuestLog(boolean main, String name, String description, int minLevel, String length, Map<String, Object> location) {
         this.name = name;
         this.description = description;
         this.minLevel = minLevel;
         this.length = length;
         this.location = location;
+        this.main = main;
     }
     public QuestLog () {
         this.name = "null";
@@ -40,6 +43,7 @@ public class QuestLog {
         this.minLevel = Integer.MAX_VALUE;
         this.length = ChatColor.BOLD.toString() + ChatColor.MAGIC + "Change me!";
         this.location = null;
+        main = true;
     }
 
     public ItemStack itemize() {
@@ -76,6 +80,18 @@ public class QuestLog {
         itemMeta.setLore(lore);
         questItem.setItemMeta(itemMeta);
         return questItem;
+    }
+
+    public void delete() {
+        if(!Quests.totalMainQuestsMap.containsKey(this.name) && !Quests.totalSideQuestsMap.containsKey(this.name)) {
+            Bukkit.getLogger().severe("Error removing quest, it does not exist inside maps! Contact Optivat to fix...");
+            return;
+        }
+        if(main) {
+            Quests.totalMainQuestsMap.remove(this.name);
+        } else {
+            Quests.totalSideQuestsMap.remove(this.name);
+        }
     }
 
     public static QuestLog getQuestByMetaName(String name, String string) {
