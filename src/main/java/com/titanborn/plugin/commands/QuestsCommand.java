@@ -109,52 +109,46 @@ public class QuestsCommand implements CommandExecutor {
         return false;
     }
     public static void openSideQuestsGUI(Player player) {
+        //Variable initialization
         int playerPage;
         Inventory inventory;
         List<QuestLog> quests;
+        //Creating inventory
         inventory = Bukkit.createInventory(player, 54, ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Side Quests");
+        //Gets all side quests
         quests = new ArrayList<>(Quests.totalSideQuestsMap.values());
+        //Gets the player's current page, if it is opened for the first time in the command it will be assigned to 0, ensuring this won't return null.
         playerPage = Quests.playerPageSide.get(player);
-
+        //Empty space block
         ItemStack bSG = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta bSGMeta = bSG.getItemMeta();
         assert bSGMeta != null;
         bSGMeta.setDisplayName(ChatColor.BLACK.toString());
         bSG.setItemMeta(bSGMeta);
         int slots = 0;
+        //iterates through each side quest and puts it in
         for (int x = 0; x < quests.size(); x++) {
             if(slots == 45) {break;}
+            //playerPage is used to ensure that the quests aren't the same each page
             if (x >= playerPage*45) {
                 inventory.setItem(slots, quests.get(x).itemize());
                 slots++;
             }
         }
+        //If slots != 45, this will fill in the gaps of the quests
         for(int x = slots; x < 45; x++) {
             inventory.setItem(x, bSG);
         }
-        ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
+        ItemStack skull = new ItemStack(Material.ARROW, 1);
+        ItemMeta skullMeta = skull.getItemMeta();
+        //In 1.20 this doesn't work, I haven't explored why but it will be commented until the server updates to 1.20
+        /*ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
-        assert skullMeta != null;
+        */assert skullMeta != null;/*
         PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());
         PlayerTextures textures = profile.getTextures();
-        if(playerPage > 0) {
-            try {
-                textures.setSkin(new URL("https://textures.minecraft.net/texture/f7aacad193e2226971ed95302dba433438be4644fbab5ebf818054061667fbe2"));
-            } catch (MalformedURLException e) {throw new RuntimeException(e);}
-            skullMeta.setOwnerProfile(profile);
-            skullMeta.setDisplayName(ChatColor.YELLOW + "Previous Page");
-            skull.setItemMeta(skullMeta);
-            inventory.setItem(45, skull);
-        }
-        if (quests.size() > (playerPage+1)*44) {
-            try {
-                textures.setSkin(new URL("https://textures.minecraft.net/texture/d34ef0638537222b20f480694dadc0f85fbe0759d581aa7fcdf2e43139377158"));
-            } catch (MalformedURLException e) {throw new RuntimeException(e);}
-            skullMeta.setOwnerProfile(profile);
-            skullMeta.setDisplayName(ChatColor.YELLOW + "Next Page");
-            skull.setItemMeta(skullMeta);
-            inventory.setItem(53, skull);
-        }
+        */
+        //Close block
         ItemStack border = new ItemStack(Material.BARRIER);
         ItemMeta borderMeta = border.getItemMeta();
         if(borderMeta == null) {Bukkit.getLogger().info("Close Barrier Meta is null? Ask Optivat to fix this, send him the log of the console."); return;}
@@ -162,16 +156,48 @@ public class QuestsCommand implements CommandExecutor {
         border.setItemMeta(borderMeta);
         inventory.setItem(49, border);
 
+        if (playerPage > 0) {
+            //In 1.20 this doesn't work, I haven't explored why but it will be commented until the server updates to 1.20
+            /*
+            try {
+                textures.setSkin(new URL("https://textures.minecraft.net/texture/f7aacad193e2226971ed95302dba433438be4644fbab5ebf818054061667fbe2"));
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+            skullMeta.setOwnerProfile(profile);*/
+            skullMeta.setDisplayName(ChatColor.YELLOW + "Previous Page");
+            skull.setItemMeta(skullMeta);
+            inventory.setItem(48, skull);
+        }
+
+        if (playerPage < (playerPage+1)*44) {
+            //In 1.20 this doesn't work, I haven't explored why but it will be commented until the server updates to 1.20
+            /*try {
+                textures.setSkin(new URL("https://textures.minecraft.net/texture/d34ef0638537222b20f480694dadc0f85fbe0759d581aa7fcdf2e43139377158"));
+            } catch (MalformedURLException e) {
+                throw new RuntimeException(e);
+            }
+            skullMeta.setOwnerProfile(profile);*/
+            skullMeta.setDisplayName(ChatColor.YELLOW + "Next Page");
+            skull.setItemMeta(skullMeta);
+            inventory.setItem(50, skull);
+        }
+
         player.openInventory(inventory);
     }
     public static void openMainQuestsGUI(Player player) {
+        //Variable initialization
         int playerPage;
         Inventory inventory;
         List<QuestLog> quests;
+        //Creates inventory
         inventory = Bukkit.createInventory(player, 54, ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Main Quests");
+        //Gets all Main Quests into a array from first to last in order
         quests = new ArrayList<>(Quests.totalMainQuestsMap.values());
+        //Gets the playerPage, if the player hasn't opened this menu before it is assigned prior as to avoid null
         playerPage = Quests.playerPageMain.get(player);
 
+        //This hasn't been used in the code, I don't know if it will be used, safe to remove for the time being.
         ItemStack bSG = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta bSGMeta = bSG.getItemMeta();
         assert bSGMeta != null;
@@ -184,35 +210,36 @@ public class QuestsCommand implements CommandExecutor {
         rGMeta.setDisplayName(ChatColor.RED + "Coming soon...");
         rG.setItemMeta(rGMeta);
 
+        //This will be used when I implement quest completions, these will be hiding the quests until then this is unused
         ItemStack gG = new ItemStack(Material.GRAY_STAINED_GLASS);
         ItemMeta gGMeta = gG.getItemMeta();
         assert gGMeta != null;
         gGMeta.setDisplayName(ChatColor.MAGIC + "L bozo");
         gG.setItemMeta(gGMeta);
 
-        int slots = 0;/*
-        for (int x = 0; x < quests.size(); x++) {
-            if(slots == 53) {break;}
-            if (x >= playerPage*45) {
-                inventory.setItem(slots, quests.get(x).itemize());
-                slots++;
-            }
-        }*/
+        //It may be argued that an integer can be used here but I feel that assigning ItemStacks in order from first to last will be used in the future.
         ArrayList<ItemStack> tempOrganization = new ArrayList<>();
+        //This for loop is to shift the snake by 2
         for (int i = 0; i < 8; i += 2) {
+            //Goes down 4
             for (int x = i; x <= 27 + i; x += 9) {
                 int value = (tempOrganization.size());
                 setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, value);
+                //After it goes down 4 it goes 1 right
                 if (x == (27 + i)) {
                     value = (tempOrganization.size());
+                    //This is why I did i+=2 later instead of i+=1;
                     x++;
                     setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, value);
                 }
             }
+            //Shifts so it will continue the snake up.
             i += 2;
+            //Goes up 4
             for (int x = 27 + i; x >= i; x -= 9) {
                 int value = (tempOrganization.size());
                 setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, value);
+                //After it reaches the top, it will go right 1
                 if (x == i) {
                     value = (tempOrganization.size());
                     x++;
@@ -220,75 +247,78 @@ public class QuestsCommand implements CommandExecutor {
                 }
             }
         }
-            for (int x = 8; x <= 53; x += 9) {
-                setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, tempOrganization.size());
-            }
+        //This fills out the last column with quests.
+        for (int x = 8; x <= 53; x += 9) {
+            setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, tempOrganization.size());
+        }
 
-            for (int x = 0; x < 54; x++) {
-                //Very lazy
-                //There is a lot of commented code that does not work in 1.20.2 but works in 1.19 and I need to investigate into why or find a different solution
-                if (!(x == 0 || (x >= 2 && x <= 4) || (x >= 6 && x <= 8) || x == 9 || x == 11 || x == 13 || x == 15 || x == 17 || x == 18 || x == 20 || x == 22 || x == 24 || x == 26 || (x >= 27 && x <= 29) || (x >= 31 && x <= 33) || x == 35 || x == 44 || x == 53) && !(x == 48 || x == 49 || x == 50)) {
-                    inventory.setItem(x, bSG);
-                } else if (x == 48 || x == 49 || x == 50) {
-                    ItemStack skull = new ItemStack(Material.ARROW, 1);
-                    ItemMeta skullMeta = skull.getItemMeta();
-                    /*ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
-                    SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
-                    */assert skullMeta != null;/*
-                    PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());
-                    PlayerTextures textures = profile.getTextures();
-
-                    */
-                    ItemStack border = new ItemStack(Material.BARRIER);
-                    ItemMeta borderMeta = border.getItemMeta();
-                    if(borderMeta == null) {Bukkit.getLogger().info("Close Barrier Meta is null? Ask Optivat to fix this, send him the log of the console."); return;}
+        for (int x = 0; x < 54; x++) {
+            //Very lazy
+            //There is a lot of commented code that does not work in 1.20.2 but works in 1.19 and I need to investigate into why or find a different solution
+            if (!(x == 0 || (x >= 2 && x <= 4) || (x >= 6 && x <= 8) || x == 9 || x == 11 || x == 13 || x == 15 || x == 17 || x == 18 || x == 20 || x == 22 || x == 24 || x == 26 || (x >= 27 && x <= 29) || (x >= 31 && x <= 33) || x == 35 || x == 44 || x == 53) && !(x == 48 || x == 49 || x == 50)) {
+                inventory.setItem(x, bSG);
+            } else if (x == 48 || x == 49 || x == 50) {
+                ItemStack skull = new ItemStack(Material.ARROW, 1);
+                ItemMeta skullMeta = skull.getItemMeta();
+                /*ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
+                SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
+                */assert skullMeta != null;/*
+                PlayerProfile profile = Bukkit.createPlayerProfile(UUID.randomUUID());
+                PlayerTextures textures = profile.getTextures();
+                */
+                ItemStack border = new ItemStack(Material.BARRIER);
+                ItemMeta borderMeta = border.getItemMeta();
+                if(borderMeta == null) {Bukkit.getLogger().info("Close Barrier Meta is null? Ask Optivat to fix this, send him the log of the console."); return;}
                     borderMeta.setDisplayName(ChatColor.RED + "Close");
-                    border.setItemMeta(borderMeta);
-                    inventory.setItem(49, border);
-
-                    if (playerPage > 0) {
-                        /*
-                        try {
-                            textures.setSkin(new URL("https://textures.minecraft.net/texture/f7aacad193e2226971ed95302dba433438be4644fbab5ebf818054061667fbe2"));
-                        } catch (MalformedURLException e) {
-                            throw new RuntimeException(e);
-                        }
-                        skullMeta.setOwnerProfile(profile);*/
-                        skullMeta.setDisplayName(ChatColor.YELLOW + "Previous Page");
-                        skull.setItemMeta(skullMeta);
-                        inventory.setItem(48, skull);
-                    } else {
-                        inventory.setItem(x, bSG);
+                border.setItemMeta(borderMeta);
+                inventory.setItem(49, border);
+                if (playerPage > 0) {
+                    /*
+                    try {
+                        textures.setSkin(new URL("https://textures.minecraft.net/texture/f7aacad193e2226971ed95302dba433438be4644fbab5ebf818054061667fbe2"));
+                    } catch (MalformedURLException e) {
+                        throw new RuntimeException(e);
                     }
-                    if (playerPage < quests.size()/25) {
-                        /*try {
-                            textures.setSkin(new URL("https://textures.minecraft.net/texture/d34ef0638537222b20f480694dadc0f85fbe0759d581aa7fcdf2e43139377158"));
-                        } catch (MalformedURLException e) {
-                            throw new RuntimeException(e);
-                        }
-                        skullMeta.setOwnerProfile(profile);*/
-                        skullMeta.setDisplayName(ChatColor.YELLOW + "Next Page");
-                        skull.setItemMeta(skullMeta);
-                        inventory.setItem(50, skull);
-                    } else {
-                        inventory.setItem(x, bSG);
+                    skullMeta.setOwnerProfile(profile);*/
+                    skullMeta.setDisplayName(ChatColor.YELLOW + "Previous Page");
+                    skull.setItemMeta(skullMeta);
+                    inventory.setItem(48, skull);
+                } else {
+                    inventory.setItem(x, bSG);
+                }
+                if (playerPage < quests.size()/25) {
+                    /*try {
+                        textures.setSkin(new URL("https://textures.minecraft.net/texture/d34ef0638537222b20f480694dadc0f85fbe0759d581aa7fcdf2e43139377158"));
+                    } catch (MalformedURLException e) {
+                        throw new RuntimeException(e);
                     }
+                    skullMeta.setOwnerProfile(profile);*/
+                    skullMeta.setDisplayName(ChatColor.YELLOW + "Next Page");
+                    skull.setItemMeta(skullMeta);
+                    inventory.setItem(50, skull);
+                } else {
+                    inventory.setItem(x, bSG);
                 }
             }
-            player.openInventory(inventory);
+        }
+        player.openInventory(inventory);
     }
 
     private static void setItemInMainQuests(int playerPage, Inventory inventory, List<QuestLog> quests, ItemStack rG, ArrayList<ItemStack> tempOrganization, int x, int value) {
+        //The amount, as in the stack, # of items, up to 64... Will mention what will happen if it is >50 later.
         int amount = (value + (playerPage*25));
+        //1. Insures that it doesn't get a invalid quest. 2. Ensures that it won't iterate beyond the quests array size.
         if (quests.get(value) != null && amount < quests.size()) {
             ItemStack questBook = quests.get(amount).itemize();
             ItemMeta questBookMeta = questBook.getItemMeta();
             if(questBookMeta == null) {Bukkit.getLogger().info("Quest Book Meta is null? Ask Optivat to fix this, send him the log of the console."); return;}
             questBook.setAmount(amount);
+            //Unique case, to ensure that the amount is nicely organized.
             if (amount == 0) {
                 questBook.setType(Material.PAPER);
                 questBook.setAmount(1);
             }
+            //At 25  Which is at the beginning of each gui, is to ensure that it nicely ends the snake with 50.
             if(playerPage != 0 && amount%((playerPage*25)) == 0 && amount%((playerPage*50)) != 0) {
                 questBook.setType(Material.PAPER);
                 questBook.setAmount(1);
@@ -296,6 +326,7 @@ public class QuestsCommand implements CommandExecutor {
             } else {
                 tempOrganization.add(questBook);
             }
+            //Addresses the aforementioned, where if the amount is >50 it switches the item and resets the count back to 1, visually, but continues to increment past 50.
             int change = 50;
             if(amount/change >= 1 && amount%change != 0) {
                 questBook.setType(Material.WRITTEN_BOOK);
@@ -305,6 +336,7 @@ public class QuestsCommand implements CommandExecutor {
                     questBookMeta.removeEnchant(echant);
                 }
             }
+            //Every five it enchants it, why idk I thought it was cool.
             if(amount%5 == 0) {
                 questBookMeta.addEnchant(Enchantment.DURABILITY, 1, true);
                 questBookMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
