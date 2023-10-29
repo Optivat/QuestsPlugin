@@ -42,7 +42,7 @@ public class QuestsCommand implements CommandExecutor {
                                 Quests.totalSideQuestsMap.put(args[2], new QuestLog(args[2], args[5], Integer.parseInt(args[3]), args[4], player.getLocation()));
                                 Quests.saveJson();
                             } else {
-                                player.sendMessage(ChatColor.RED + "Invalid argument for create! The first arguement should be \"main\" or \"side\".");
+                                player.sendMessage(ChatColor.RED + "Invalid argument for create! The first argument should be \"main\" or \"side\".");
                             }
                         } else {
                             player.sendMessage(ChatColor.RED + "Invalid argument for create! /quests create (main/side) (name) (min level) (length) (description)");
@@ -65,7 +65,7 @@ public class QuestsCommand implements CommandExecutor {
                                     player.sendMessage(ChatColor.RED + "Invalid arguments for remove! The name is not a side quest.");
                                 }
                             } else {
-                                player.sendMessage(ChatColor.RED + "Invalid argument for create! The first arguement should be \"main\" or \"side\".");
+                                player.sendMessage(ChatColor.RED + "Invalid argument for create! The first argument should be \"main\" or \"side\".");
                             }
                         } else {
                             player.sendMessage(ChatColor.RED + "Invalid arguments for remove! /quests remove (main/side) (name)");
@@ -134,7 +134,7 @@ public class QuestsCommand implements CommandExecutor {
         }
         ItemStack skull = new ItemStack(Material.ARROW, 1);
         ItemMeta skullMeta = skull.getItemMeta();
-        //In 1.20 this doesn't work, I haven't explored why but it will be commented until the server updates to 1.20
+        //In 1.20 this doesn't work, I haven't explored why, but it will be commented until the server updates to 1.20
         /*ItemStack skull = new ItemStack(Material.PLAYER_HEAD, 1);
         SkullMeta skullMeta = (SkullMeta) skull.getItemMeta();
         */assert skullMeta != null;/*
@@ -150,7 +150,7 @@ public class QuestsCommand implements CommandExecutor {
         inventory.setItem(49, border);
 
         if (playerPage > 0) {
-            //In 1.20 this doesn't work, I haven't explored why but it will be commented until the server updates to 1.20
+            //In 1.20 this doesn't work, I haven't explored why, but it will be commented until the server updates to 1.20
             /*
             try {
                 textures.setSkin(new URL("https://textures.minecraft.net/texture/f7aacad193e2226971ed95302dba433438be4644fbab5ebf818054061667fbe2"));
@@ -164,7 +164,7 @@ public class QuestsCommand implements CommandExecutor {
         }
 
         if (playerPage < (playerPage+1)*44) {
-            //In 1.20 this doesn't work, I haven't explored why but it will be commented until the server updates to 1.20
+            //In 1.20 this doesn't work, I haven't explored why, but it will be commented until the server updates to 1.20
             /*try {
                 textures.setSkin(new URL("https://textures.minecraft.net/texture/d34ef0638537222b20f480694dadc0f85fbe0759d581aa7fcdf2e43139377158"));
             } catch (MalformedURLException e) {
@@ -185,7 +185,7 @@ public class QuestsCommand implements CommandExecutor {
         List<QuestLog> quests;
         //Creates inventory
         inventory = Bukkit.createInventory(player, 54, ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Main Quests");
-        //Gets all Main Quests into a array from first to last in order
+        //Gets all Main Quests into an array from first to last in order
         quests = new ArrayList<>(Quests.totalMainQuestsMap.values());
         //Gets the playerPage, if the player hasn't opened this menu before it is assigned prior as to avoid null
         playerPage = Quests.playerPageMain.get(player);
@@ -210,7 +210,7 @@ public class QuestsCommand implements CommandExecutor {
         gGMeta.setDisplayName(ChatColor.MAGIC + "L bozo");
         gG.setItemMeta(gGMeta);
 
-        //It may be argued that an integer can be used here but I feel that assigning ItemStacks in order from first to last will be used in the future.
+        //It may be argued that an integer can be used here, but I feel that assigning ItemStacks in order from first to last will be used in the future.
         ArrayList<ItemStack> tempOrganization = new ArrayList<>();
         //This for loop is to shift the snake by 2
         for (int i = 0; i < 8; i += 2) {
@@ -221,7 +221,7 @@ public class QuestsCommand implements CommandExecutor {
                 //After it goes down 4 it goes 1 right
                 if (x == (27 + i)) {
                     value = (tempOrganization.size());
-                    //This is why I did i+=2 later instead of i+=1;
+                    //This is why I did I+=2 later instead of i+=1;
                     x++;
                     setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, value);
                 }
@@ -247,7 +247,7 @@ public class QuestsCommand implements CommandExecutor {
 
         for (int x = 0; x < 54; x++) {
             //Very lazy
-            //There is a lot of commented code that does not work in 1.20.2 but works in 1.19 and I need to investigate into why or find a different solution
+            //There is a lot of commented code that does not work in 1.20.2 but works in 1.19, and I need to investigate into why or find a different solution
             if (!(x == 0 || (x >= 2 && x <= 4) || (x >= 6 && x <= 8) || x == 9 || x == 11 || x == 13 || x == 15 || x == 17 || x == 18 || x == 20 || x == 22 || x == 24 || x == 26 || (x >= 27 && x <= 29) || (x >= 31 && x <= 33) || x == 35 || x == 44 || x == 53) && !(x == 48 || x == 49 || x == 50)) {
                 inventory.setItem(x, bSG);
             } else if (x == 48 || x == 49 || x == 50) {
@@ -300,7 +300,7 @@ public class QuestsCommand implements CommandExecutor {
     private static void setItemInMainQuests(int playerPage, Inventory inventory, List<QuestLog> quests, ItemStack rG, ArrayList<ItemStack> tempOrganization, int x, int value) {
         //The amount, as in the stack, # of items, up to 64... Will mention what will happen if it is >50 later.
         int amount = (value + (playerPage*25));
-        //1. Insures that it doesn't get a invalid quest. 2. Ensures that it won't iterate beyond the quests array size.
+        //1. Insures that it doesn't get an invalid quest. 2. Ensures that it won't iterate beyond the quests array size.
         if (quests.get(value) != null && amount < quests.size()) {
             ItemStack questBook = quests.get(amount).itemize();
             ItemMeta questBookMeta = questBook.getItemMeta();
@@ -329,7 +329,7 @@ public class QuestsCommand implements CommandExecutor {
                     questBookMeta.removeEnchant(echant);
                 }
             }
-            //Every five it enchants it, why idk I thought it was cool.
+            //Every five it enchants it, why IDK I thought it was cool.
             if(amount%5 == 0) {
                 questBookMeta.addEnchant(Enchantment.DURABILITY, 1, true);
                 questBookMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
