@@ -34,6 +34,13 @@ public class QuestLog {
         this.length = length;
         this.location = location;
     }
+    public QuestLog () {
+        this.name = "null";
+        this.description = "Uh oh! Optivat made a mistake!";
+        this.minLevel = Integer.MAX_VALUE;
+        this.length = ChatColor.BOLD.toString() + ChatColor.MAGIC + "Help me";
+        this.location = null;
+    }
 
     public ItemStack itemize() {
         ItemStack questItem = new ItemStack(Material.WRITABLE_BOOK);
@@ -60,8 +67,12 @@ public class QuestLog {
             lore.add(ChatColor.GRAY + loreline.toString().trim());
         }
         lore.add("");
-        Location loc = Location.deserialize(location);
-        lore.add(ChatColor.GRAY + "(" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ")");
+        if (location == null) {
+            lore.add(ChatColor.GRAY + "(Location is null!)");
+        } else {
+            Location loc = Location.deserialize(location);
+            lore.add(ChatColor.GRAY + "(" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ")");
+        }
         itemMeta.setLore(lore);
         questItem.setItemMeta(itemMeta);
         return questItem;
