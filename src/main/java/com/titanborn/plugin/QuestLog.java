@@ -7,10 +7,7 @@ import org.bukkit.Material;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-import java.util.Objects;
+import java.util.*;
 
 public class QuestLog {
     public String name;
@@ -19,24 +16,8 @@ public class QuestLog {
     public String length;
     public Map<String, Object> location;
     public boolean main;
+    public Map<String, String> objectives;
 
-    public QuestLog(boolean main, String name, String description, int minLevel, String length, Location location) {
-        this.name = name;
-        this.description = description;
-        this.minLevel = minLevel;
-        this.length = length;
-        this.location = location.serialize();
-        this.main = main;
-    }
-    @SuppressWarnings("unused")
-    public QuestLog(boolean main, String name, String description, int minLevel, String length, Map<String, Object> location) {
-        this.name = name;
-        this.description = description;
-        this.minLevel = minLevel;
-        this.length = length;
-        this.location = location;
-        this.main = main;
-    }
     public QuestLog () {
         this.name = "null";
         this.description = "Change me!";
@@ -44,6 +25,7 @@ public class QuestLog {
         this.length = ChatColor.BOLD.toString() + ChatColor.MAGIC + "Change me!";
         this.location = null;
         main = true;
+        objectives = new HashMap<>();
     }
 
     public ItemStack itemize() {
@@ -67,10 +49,16 @@ public class QuestLog {
                 loreline = new StringBuilder();
             }
         }
+
         if(!loreline.toString().equalsIgnoreCase("")) {
             lore.add(ChatColor.GRAY + loreline.toString().trim());
         }
         lore.add("");
+        if(!objectives.isEmpty()) {
+            lore.add(ChatColor.GRAY + "Current Objective: ");
+
+        }
+
         if (location == null) {
             lore.add(ChatColor.GRAY + "(Location is null!)");
         } else {

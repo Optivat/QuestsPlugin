@@ -2,6 +2,7 @@ package com.titanborn.plugin.events;
 
 import com.titanborn.plugin.QuestLog;
 import com.titanborn.plugin.Quests;
+import com.titanborn.plugin.events.custom.QuestStartEvent;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -32,6 +33,13 @@ public class GenericListener implements Listener {
             }
         }
     }
+
+    //TEMPORARY EVENT REMOVE LATER
+    @EventHandler
+    public void onQuestStart(QuestStartEvent e) {
+        e.getPlayer().sendMessage(e.getQuestName());
+    }
+
     //To maintain current quest
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {

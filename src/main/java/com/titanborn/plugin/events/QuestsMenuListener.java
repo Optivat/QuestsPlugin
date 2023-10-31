@@ -3,6 +3,7 @@ package com.titanborn.plugin.events;
 import com.titanborn.plugin.QuestLog;
 import com.titanborn.plugin.Quests;
 import com.titanborn.plugin.commands.QuestsCommand;
+import com.titanborn.plugin.events.custom.QuestStartEvent;
 import net.wesjd.anvilgui.AnvilGUI;
 import org.bukkit.*;
 import org.bukkit.entity.Player;
@@ -24,7 +25,7 @@ public class QuestsMenuListener implements Listener {
         if (e.getView().getTitle().equalsIgnoreCase(ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Main Quests")) {
             e.setCancelled(true);
             //To prevent null in console
-            if(e.getRawSlot() > 54) {return;}
+            if(e.getRawSlot() > 54 || e.getRawSlot() < 0) {return;}
             ItemStack clickedItem = e.getInventory().getItem(e.getRawSlot());
             if (clickedItem == null) {return;}
             if (!clickedItem.hasItemMeta()) {return;}
@@ -54,7 +55,8 @@ public class QuestsMenuListener implements Listener {
         if (e.getView().getTitle().equalsIgnoreCase(ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Side Quests")) {
             e.setCancelled(true);
             //To prevent null in console
-            if(e.getRawSlot() > 54) {return;}
+            if(e.getRawSlot() > 54 || e.getRawSlot() < 0) {return;}
+            if(Objects.isNull(e.getInventory().getItem(e.getRawSlot()))) {return;}
             ItemStack clickedItem = e.getInventory().getItem(e.getRawSlot());
             if (clickedItem == null) {return;}
             if (!clickedItem.hasItemMeta()) {return;}
@@ -84,7 +86,7 @@ public class QuestsMenuListener implements Listener {
         if (e.getView().getTitle().equalsIgnoreCase(ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Quest Creation")) {
             e.setCancelled(true);
             //To prevent null in console
-            if(e.getRawSlot() > 54) {return;}
+            if(e.getRawSlot() > 54 || e.getRawSlot() < 0) {return;}
             ItemStack clickedItem = e.getInventory().getItem(e.getRawSlot());
             if (clickedItem == null) {return;}
             if (!clickedItem.hasItemMeta()) {return;}
@@ -196,7 +198,7 @@ public class QuestsMenuListener implements Listener {
         if (e.getView().getTitle().equalsIgnoreCase(ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Create quest?")) {
             e.setCancelled(true);
             //To prevent null in console
-            if(e.getRawSlot() > 54) {return;}
+            if(e.getRawSlot() > 54 || e.getRawSlot() < 0) {return;}
             ItemStack clickedItem = e.getInventory().getItem(e.getRawSlot());
             if (clickedItem == null) {return;}
             if (!clickedItem.hasItemMeta()) {return;}
@@ -220,7 +222,7 @@ public class QuestsMenuListener implements Listener {
         if (e.getView().getTitle().equalsIgnoreCase(ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Destroy quest?")) {
             e.setCancelled(true);
             //To prevent null in console
-            if(e.getRawSlot() > 54) {return;}
+            if(e.getRawSlot() > 54 || e.getRawSlot() < 0) {return;}
             ItemStack clickedItem = e.getInventory().getItem(e.getRawSlot());
             if (clickedItem == null) {return;}
             if (!clickedItem.hasItemMeta()) {return;}
@@ -249,22 +251,28 @@ public class QuestsMenuListener implements Listener {
                     e.getRightClicked().getLocation().getBlockX() + ", " + e.getRightClicked().getLocation().getBlockY() + ", " + e.getRightClicked().getLocation().getBlockZ() + ")");
         }
     }
+
     public static void createBeacon(ItemStack clickedItem, Player player, String title, InventoryClickEvent e) {
-        if (clickedItem.getType() == Material.WRITABLE_BOOK || clickedItem.getType() == Material.WRITTEN_BOOK || clickedItem.getType() == Material.ENCHANTED_BOOK) {
+        if (clickedItem.getType() == Material.WRITABLE_BOOK || clickedItem.getType() == Material.WRITTEN_BOOK || clickedItem.getType() == Material.ENCHANTED_BOOK || clickedItem.getType() == Material.PAPER) {
             //This code creates a Beacon 30 blocks under the ground client side.
             ItemMeta questBookMeta = clickedItem.getItemMeta();
             assert questBookMeta != null;
             QuestLog questLog;
+            QuestStartEvent event;
             if (title.equalsIgnoreCase(ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Side Quests")) {
                 questLog = QuestLog.getQuestByMetaName(questBookMeta.getDisplayName(), "side");
+                assert questLog != null;
+                event = new QuestStartEvent(player, questLog.name, questLog.main);
             } else if (title.equalsIgnoreCase(ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Main Quests")) {
                 questLog = QuestLog.getQuestByMetaName(questBookMeta.getDisplayName(), "main");
+                assert questLog != null;
+                event = new QuestStartEvent(player, questLog.name, questLog.main);
             } else {
                 return;
             }
+            Bukkit.getPluginManager().callEvent(event);
             Quests.currentQuestSelected.put(String.valueOf(player.getUniqueId()), questLog);
             Quests.saveJson();
-            assert questLog != null;
             Location location = Location.deserialize(questLog.location);
             int x = location.getBlockX();
             int y = location.getBlockY() - 30;

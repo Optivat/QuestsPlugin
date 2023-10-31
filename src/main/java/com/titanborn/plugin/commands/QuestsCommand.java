@@ -170,7 +170,7 @@ public class QuestsCommand implements CommandExecutor {
             inventory.setItem(48, skull);
         }
 
-        if (playerPage < (playerPage+1)*44) {
+        if (quests.size() > (playerPage+1)*44) {
             //In 1.20 this doesn't work, I haven't explored why, but it will be commented until the server updates to 1.20
             /*try {
                 textures.setSkin(new URL("https://textures.minecraft.net/texture/d34ef0638537222b20f480694dadc0f85fbe0759d581aa7fcdf2e43139377158"));
@@ -186,6 +186,10 @@ public class QuestsCommand implements CommandExecutor {
         player.openInventory(inventory);
     }
     public static void openMainQuestsGUI(Player player) {
+
+        //If (Player has quest Selected) show next OBjective in lore under description.
+
+
         //Variable initialization
         int playerPage;
         Inventory inventory;
@@ -308,7 +312,7 @@ public class QuestsCommand implements CommandExecutor {
         //The amount, as in the stack, # of items, up to 64... Will mention what will happen if it is >50 later.
         int amount = (value + (playerPage*25));
         //1. Insures that it doesn't get an invalid quest. 2. Ensures that it won't iterate beyond the quests array size.
-        if (quests.get(value) != null && amount < quests.size()) {
+        if (amount < quests.size()) {
             ItemStack questBook = quests.get(amount).itemize();
             ItemMeta questBookMeta = questBook.getItemMeta();
             if(questBookMeta == null) {Bukkit.getLogger().info("Quest Book Meta is null? Ask Optivat to fix this, send him the log of the console."); return;}

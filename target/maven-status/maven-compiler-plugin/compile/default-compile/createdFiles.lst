@@ -2,6 +2,7 @@ com\titanborn\plugin\Quests$3.class
 com\titanborn\plugin\QuestLog.class
 com\titanborn\plugin\events\QuestsMenuListener.class
 com\titanborn\plugin\events\QuestsMenuListener$1.class
+com\titanborn\plugin\events\custom\QuestStartEvent.class
 com\titanborn\plugin\events\GenericListener.class
 com\titanborn\plugin\commands\QuestsCommand.class
 com\titanborn\plugin\Quests$2.class
