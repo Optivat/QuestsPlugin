@@ -380,7 +380,7 @@ public class QuestsCommand implements CommandExecutor {
             woolMeta.setDisplayName(ChatColor.RED + "Click on me to change quest type, currently: " + ChatColor.BOLD + "Side");
             wool.setItemMeta(woolMeta);
         }
-        inventory.setItem(11, wool);
+        inventory.setItem(10, wool);
 
         ItemStack sign = new ItemStack(Material.OAK_SIGN);
         ItemMeta signMeta = sign.getItemMeta();
@@ -388,7 +388,7 @@ public class QuestsCommand implements CommandExecutor {
         signMeta.setDisplayName("Click on me to change name, currently: " + questLog.name);
         sign.setItemMeta(signMeta);
 
-        inventory.setItem(13, sign);
+        inventory.setItem(12, sign);
 
         ItemStack darkOakSign = new ItemStack(Material.DARK_OAK_SIGN);
         ItemMeta darkOakSignMeta = darkOakSign.getItemMeta();
@@ -412,7 +412,7 @@ public class QuestsCommand implements CommandExecutor {
         darkOakSignMeta.setLore(lore);
         darkOakSign.setItemMeta(darkOakSignMeta);
 
-        inventory.setItem(15, darkOakSign);
+        inventory.setItem(14, darkOakSign);
 
         ItemStack ironSword = new ItemStack(Material.IRON_SWORD);
         ItemMeta ironSwordMeta = ironSword.getItemMeta();
@@ -420,7 +420,7 @@ public class QuestsCommand implements CommandExecutor {
         ironSwordMeta.setDisplayName("Click on me to change combat level requirement, currently: " + questLog.minLevel);
         ironSword.setItemMeta(ironSwordMeta);
 
-        inventory.setItem(38, ironSword);
+        inventory.setItem(16, ironSword);
 
         ItemStack concrete;
         ItemMeta concreteMeta;
@@ -450,7 +450,7 @@ public class QuestsCommand implements CommandExecutor {
             concrete.setItemMeta(concreteMeta);
         }
 
-        inventory.setItem(40, concrete);
+        inventory.setItem(37, concrete);
 
         ItemStack skull = new ItemStack(Material.SKELETON_SKULL);
         ItemMeta skullMeta = skull.getItemMeta();
@@ -468,7 +468,37 @@ public class QuestsCommand implements CommandExecutor {
         }
         skull.setItemMeta(skullMeta);
 
-        inventory.setItem(42, skull);
+        inventory.setItem(39, skull);
+
+        ItemStack armorStand = new ItemStack(Material.ARMOR_STAND);
+        ItemMeta asMeta = armorStand.getItemMeta();
+        assert asMeta != null;
+        asMeta.setDisplayName("Click to add objectives!");
+        lore = new ArrayList<>();
+        lore.add("");
+        if (!questLog.objectives.isEmpty()) {
+            int objectiveIncrement = 1;
+            for(String objective : questLog.objectives) {
+                lore.add("Objective #" + objectiveIncrement + ": ");
+                String[] objectiveSplit = objective.split("\\s");
+                loreline = new StringBuilder();
+                for(String string : objectiveSplit) {
+                    loreline.append(" ").append(string);
+                    if(loreline.toString().length() > 25) {
+                        lore.add(ChatColor.GRAY + loreline.toString().trim());
+                        loreline = new StringBuilder();
+                    }
+                }
+                if(!loreline.toString().equalsIgnoreCase("")) {
+                    lore.add(ChatColor.GRAY + loreline.toString().trim());
+                }
+                lore.add("");
+            }
+        }
+        asMeta.setLore(lore);
+        armorStand.setItemMeta(asMeta);
+
+        inventory.setItem(41, armorStand);
 
         ItemStack border = new ItemStack(Material.BARRIER);
         ItemMeta borderMeta = border.getItemMeta();

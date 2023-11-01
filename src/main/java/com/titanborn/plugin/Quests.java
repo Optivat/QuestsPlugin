@@ -7,7 +7,8 @@ import com.titanborn.plugin.commands.QuestsCommand;
 import com.titanborn.plugin.commands.QuestsCommandTabCompleter;
 import com.titanborn.plugin.events.GenericListener;
 import com.titanborn.plugin.events.QuestsMenuListener;
-import org.bukkit.Bukkit;
+import com.titanborn.plugin.events.custom.QuestStartEvent;
+import org.bukkit.*;
 import org.bukkit.command.PluginCommand;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
@@ -16,6 +17,7 @@ import java.io.*;
 import java.lang.reflect.Type;
 import java.nio.file.Files;
 import java.nio.file.StandardOpenOption;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -151,6 +153,54 @@ public final class Quests extends JavaPlugin {
             Files.write(currentQuestSelectedFile.toPath(), jsonCurrentSelectedQuests.getBytes(), StandardOpenOption.CREATE, StandardOpenOption.WRITE);
         } catch (IOException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    //Used in QusetAdapter don't remove
+    public static void completeQuest(Player player) {
+        if(currentQuestSelected.containsKey(String.valueOf(player.getUniqueId()))) {
+            QuestLog completedQuest = currentQuestSelected.get(String.valueOf(player.getUniqueId()));
+            ArrayList<QuestLog> quests;
+            if(completedQuest.main) {
+                quests = new ArrayList<>(totalMainQuestsMap.values());
+            } else {
+                quests = new ArrayList<>(totalSideQuestsMap.values());
+            }
+            boolean nextValueIsNextQuest = false;
+            for(QuestLog questLog : quests) {
+                if (!nextValueIsNextQuest) {
+                    if(completedQuest.name.equalsIgnoreCase(questLog.name)) {
+                        nextValueIsNextQuest = true;
+                    }
+                } else {
+                    QuestsMenuListener.removeBeacon(player);
+                    currentQuestSelected.put(String.valueOf(player.getUniqueId()), questLog);
+                    Quests.saveJson();
+
+                    Location location = Location.deserialize(questLog.location);
+                    int x = location.getBlockX();
+                    int y = location.getBlockY() - 30;
+                    int z = location.getBlockZ();
+
+                    World world = location.getWorld();
+
+                    player.sendBlockChange(new Location(world, x, y, z), Material.BEACON.createBlockData());
+                    for (int i = 0; i <= 29; ++i) {
+                        assert world != null;
+                        if (world.getBlockAt(x, (y + 1) + i, z).getType() != Material.AIR) {
+                            player.sendBlockChange(new Location(world, x, (y + 1) + i, z), Material.WHITE_STAINED_GLASS.createBlockData());
+                        }
+                    }
+                    for (int xPoint = x - 1; xPoint <= x + 1; xPoint++) {
+                        for (int zPoint = z - 1; zPoint <= z + 1; zPoint++) {
+                            player.sendBlockChange(new Location(world, xPoint, y - 1, zPoint), Material.IRON_BLOCK.createBlockData());
+                        }
+                    }
+                    QuestStartEvent event = new QuestStartEvent(player, questLog.name, questLog.main);
+                    Bukkit.getPluginManager().callEvent(event);
+                    break;
+                }
+            }
         }
     }
 

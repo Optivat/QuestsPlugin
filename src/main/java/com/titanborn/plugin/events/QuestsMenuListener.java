@@ -187,6 +187,47 @@ public class QuestsMenuListener implements Listener {
                     e.getView().close();
                     player.sendMessage(ChatColor.GREEN + "Select an entity for the quest location!");
                     break;
+                case ARMOR_STAND:
+                    new AnvilGUI.Builder()
+                            .onClick((slot, stateSnapshot) -> {
+                                if(slot == AnvilGUI.Slot.OUTPUT) {
+                                    if(stateSnapshot.getText().startsWith("+")) {
+                                        String objective = questLog.objectives.get(questLog.objectives.size()-1);
+                                        objective+= stateSnapshot.getText().replace("+", "");
+                                        questLog.objectives.set(questLog.objectives.size()-1, objective);
+                                    } else if(stateSnapshot.getText().startsWith("--")) {
+                                        try {
+                                            int temp = Integer.parseInt(stateSnapshot.getText().replace("--", "").trim());
+                                            if(temp < 0 || temp >= questLog.objectives.size()) {return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Error! Invalid index!"));}
+                                            questLog.objectives.remove(temp);
+                                        } catch (NumberFormatException error) {
+                                            return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Error! Not a number!"));
+                                        }
+                                    } else if(stateSnapshot.getText().startsWith("-"))  {
+                                        try {
+                                            String objective = questLog.objectives.get(questLog.objectives.size()-1);
+                                            int temp = Integer.parseInt(stateSnapshot.getText());
+                                            if(objective.length()+temp < 0) {return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Error! Subtracted too much!"));}
+                                            objective = objective.substring(0, objective.length()+temp);
+                                            questLog.objectives.set(questLog.objectives.size()-1, objective);
+                                        } catch (NumberFormatException error) {
+                                            return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Error! Invalid number!"));
+                                        }
+                                    } else {
+                                        questLog.objectives.add(stateSnapshot.getText());
+                                    }
+                                    return Collections.singletonList(AnvilGUI.ResponseAction.close());
+                                } else {
+                                    return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Try again"));
+                                }
+                            })
+                            .text(questLog.objectives.get(questLog.objectives.size()-1))
+                            .title("Create or modify an objective.")
+                            .plugin(Bukkit.getPluginManager().getPlugin("Quests"))
+                            .onClose(stateSnapshot -> QuestsCommand.openQuestsCreationGUI(player, questLog))
+                            .preventClose()
+                            .open(player);
+                    break;
                 case BARRIER:
                     confirmationGUI(player, false);
                     break;

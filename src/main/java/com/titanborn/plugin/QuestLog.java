@@ -16,7 +16,7 @@ public class QuestLog {
     public String length;
     public Map<String, Object> location;
     public boolean main;
-    public Map<String, String> objectives;
+    public ArrayList<String> objectives;
 
     public QuestLog () {
         this.name = "null";
@@ -25,7 +25,7 @@ public class QuestLog {
         this.length = ChatColor.BOLD.toString() + ChatColor.MAGIC + "Change me!";
         this.location = null;
         main = true;
-        objectives = new HashMap<>();
+        objectives = new ArrayList<>();
     }
 
     public ItemStack itemize() {
