@@ -131,7 +131,7 @@ public class QuestsCommand implements CommandExecutor {
             if(slots == 45) {break;}
             //playerPage is used to ensure that the quests aren't the same each page
             if (x >= playerPage*45) {
-                inventory.setItem(slots, quests.get(x).itemize());
+                inventory.setItem(slots, quests.get(x).itemize(player));
                 slots++;
             }
         }
@@ -228,13 +228,13 @@ public class QuestsCommand implements CommandExecutor {
             //Goes down 4
             for (int x = i; x <= 27 + i; x += 9) {
                 int value = (tempOrganization.size());
-                setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, value);
+                setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, value, player);
                 //After it goes down 4 it goes 1 right
                 if (x == (27 + i)) {
                     value = (tempOrganization.size());
                     //This is why I did I+=2 later instead of i+=1;
                     x++;
-                    setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, value);
+                    setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, value, player);
                 }
             }
             //Shifts so it will continue the snake up.
@@ -242,18 +242,18 @@ public class QuestsCommand implements CommandExecutor {
             //Goes up 4
             for (int x = 27 + i; x >= i; x -= 9) {
                 int value = (tempOrganization.size());
-                setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, value);
+                setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, value, player);
                 //After it reaches the top, it will go right 1
                 if (x == i) {
                     value = (tempOrganization.size());
                     x++;
-                    setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, value);
+                    setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, value, player);
                 }
             }
         }
         //This fills out the last column with quests.
         for (int x = 8; x <= 53; x += 9) {
-            setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, tempOrganization.size());
+            setItemInMainQuests(playerPage, inventory, quests, rG, tempOrganization, x, tempOrganization.size(), player);
         }
 
         for (int x = 0; x < 54; x++) {
@@ -308,12 +308,12 @@ public class QuestsCommand implements CommandExecutor {
         player.openInventory(inventory);
     }
 
-    private static void setItemInMainQuests(int playerPage, Inventory inventory, List<QuestLog> quests, ItemStack rG, ArrayList<ItemStack> tempOrganization, int x, int value) {
+    private static void setItemInMainQuests(int playerPage, Inventory inventory, List<QuestLog> quests, ItemStack rG, ArrayList<ItemStack> tempOrganization, int x, int value, Player player) {
         //The amount, as in the stack, # of items, up to 64... Will mention what will happen if it is >50 later.
         int amount = (value + (playerPage*25));
         //1. Insures that it doesn't get an invalid quest. 2. Ensures that it won't iterate beyond the quests array size.
         if (amount < quests.size()) {
-            ItemStack questBook = quests.get(amount).itemize();
+            ItemStack questBook = quests.get(amount).itemize(player);
             ItemMeta questBookMeta = questBook.getItemMeta();
             if(questBookMeta == null) {Bukkit.getLogger().info("Quest Book Meta is null? Ask Optivat to fix this, send him the log of the console."); return;}
             questBook.setAmount(amount);
