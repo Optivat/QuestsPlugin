@@ -1,5 +1,6 @@
 package com.titanborn.plugin.commands;
 
+import com.titanborn.plugin.PlayerQuestInfo;
 import com.titanborn.plugin.QuestLog;
 import com.titanborn.plugin.Quests;
 import org.bukkit.Bukkit;
@@ -79,11 +80,8 @@ public class QuestsCommand implements CommandExecutor {
                         }
                         break;
                     case "open":
-                        if(!Quests.playerPageMain.containsKey(player)) {
-                            Quests.playerPageMain.put(player, 0);
-                        }
-                        if(!Quests.playerPageSide.containsKey(player)) {
-                            Quests.playerPageSide.put(player, 0);
+                        if(!Quests.playerQuestInfo.containsKey(player.getUniqueId())) {
+                            Quests.playerQuestInfo.put(player.getUniqueId(), new PlayerQuestInfo(player));
                         }
                         if(args.length == 2) {
                             if(args[1].equalsIgnoreCase("main")) {
@@ -113,12 +111,13 @@ public class QuestsCommand implements CommandExecutor {
         int playerPage;
         Inventory inventory;
         List<QuestLog> quests;
+        PlayerQuestInfo playerInfo = Quests.playerQuestInfo.get(player.getUniqueId());
         //Creating inventory
         inventory = Bukkit.createInventory(player, 54, ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Side Quests");
         //Gets all side quests
         quests = new ArrayList<>(Quests.totalSideQuestsMap.values());
         //Gets the player's current page, if it is opened for the first time in the command it will be assigned to 0, ensuring this won't return null.
-        playerPage = Quests.playerPageSide.get(player);
+        playerPage = playerInfo.playerPageSide;
         //Empty space block
         ItemStack bSG = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
         ItemMeta bSGMeta = bSG.getItemMeta();
@@ -151,7 +150,7 @@ public class QuestsCommand implements CommandExecutor {
         //Close block
         ItemStack border = new ItemStack(Material.BARRIER);
         ItemMeta borderMeta = border.getItemMeta();
-        if(borderMeta == null) {Bukkit.getLogger().info("Close Barrier Meta is null? Ask Optivat to fix this, send him the log of the console."); return;}
+        if(borderMeta == null) {Bukkit.getLogger().severe(Quests.prefix +"Close Barrier Meta is null? Ask Optivat to fix this, send him the log of the console."); return;}
         borderMeta.setDisplayName(ChatColor.RED + "Close");
         border.setItemMeta(borderMeta);
         inventory.setItem(49, border);
@@ -194,12 +193,13 @@ public class QuestsCommand implements CommandExecutor {
         int playerPage;
         Inventory inventory;
         List<QuestLog> quests;
+        PlayerQuestInfo playerInfo = Quests.playerQuestInfo.get(player.getUniqueId());
         //Creates inventory
         inventory = Bukkit.createInventory(player, 54, ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Main Quests");
         //Gets all Main Quests into an array from first to last in order
         quests = new ArrayList<>(Quests.totalMainQuestsMap.values());
         //Gets the playerPage, if the player hasn't opened this menu before it is assigned prior as to avoid null
-        playerPage = Quests.playerPageMain.get(player);
+        playerPage = playerInfo.playerPageMain;
 
         //This hasn't been used in the code, I don't know if it will be used, safe to remove for the time being.
         ItemStack bSG = new ItemStack(Material.BLACK_STAINED_GLASS_PANE);
@@ -272,7 +272,7 @@ public class QuestsCommand implements CommandExecutor {
                 */
                 ItemStack border = new ItemStack(Material.BARRIER);
                 ItemMeta borderMeta = border.getItemMeta();
-                if(borderMeta == null) {Bukkit.getLogger().info("Close Barrier Meta is null? Ask Optivat to fix this, send him the log of the console."); return;}
+                if(borderMeta == null) {Bukkit.getLogger().severe(Quests.prefix +"Close Barrier Meta is null? Ask Optivat to fix this, send him the log of the console."); return;}
                     borderMeta.setDisplayName(ChatColor.RED + "Close");
                 border.setItemMeta(borderMeta);
                 inventory.setItem(49, border);
@@ -315,7 +315,7 @@ public class QuestsCommand implements CommandExecutor {
         if (amount < quests.size()) {
             ItemStack questBook = quests.get(amount).itemize(player);
             ItemMeta questBookMeta = questBook.getItemMeta();
-            if(questBookMeta == null) {Bukkit.getLogger().info("Quest Book Meta is null? Ask Optivat to fix this, send him the log of the console."); return;}
+            if(questBookMeta == null) {Bukkit.getLogger().severe(Quests.prefix +"Quest Book Meta is null? Ask Optivat to fix this, send him the log of the console."); return;}
             questBook.setAmount(amount);
             //Unique case, to ensure that the amount is nicely organized.
             if (amount == 0) {
@@ -339,11 +339,6 @@ public class QuestsCommand implements CommandExecutor {
                 for(Enchantment echant : questBookMeta.getEnchants().keySet()) {
                     questBookMeta.removeEnchant(echant);
                 }
-            }
-            //Every five it enchants it, why IDK I thought it was cool.
-            if(amount%5 == 0) {
-                questBookMeta.addEnchant(Enchantment.DURABILITY, 1, true);
-                questBookMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
             }
             questBook.setItemMeta(questBookMeta);
             inventory.setItem(x, questBook);
@@ -495,6 +490,7 @@ public class QuestsCommand implements CommandExecutor {
                 lore.add("");
             }
         }
+
         asMeta.setLore(lore);
         armorStand.setItemMeta(asMeta);
 

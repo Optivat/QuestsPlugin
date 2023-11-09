@@ -4,7 +4,9 @@ import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
 import org.bukkit.Material;
+import org.bukkit.enchantments.Enchantment;
 import org.bukkit.entity.Player;
+import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
 
@@ -18,6 +20,7 @@ public class QuestLog {
     public Map<String, Object> location;
     public boolean main;
     public ArrayList<String> objectives;
+    public UUID uuid;
 
     public QuestLog () {
         this.name = "null";
@@ -27,9 +30,11 @@ public class QuestLog {
         this.location = null;
         main = true;
         objectives = new ArrayList<>();
+        uuid = UUID.randomUUID();
     }
 
     public ItemStack itemize(Player player) {
+        PlayerQuestInfo playerInfo = Quests.playerQuestInfo.get(player.getUniqueId());
         ItemStack questItem = new ItemStack(Material.WRITABLE_BOOK);
         ItemMeta itemMeta = questItem.getItemMeta();
         assert itemMeta != null;
@@ -55,8 +60,20 @@ public class QuestLog {
             lore.add(ChatColor.GRAY + loreline.toString().trim());
         }
         lore.add("");
-        if(!objectives.isEmpty() && Quests.currentQuestSelected.containsKey(String.valueOf(player.getUniqueId())) && Quests.currentQuestSelected.get(String.valueOf(player.getUniqueId())).name.equalsIgnoreCase(name) && Quests.currentQuestSelected.get(String.valueOf(player.getUniqueId())).main == main) {
+        if(!objectives.isEmpty() && playerInfo.currentQuestSelected != null && playerInfo.currentQuestSelected == uuid && QuestLog.getQuestByUUID(playerInfo.currentQuestSelected).main == main) {
             lore.add(ChatColor.GRAY + "Current Objective: ");
+            String[] objectiveSplit = objectives.get(playerInfo.currentObjective.get(uuid)).split("\\s");
+            loreline = new StringBuilder();
+            for(String string : objectiveSplit) {
+                loreline.append(" ").append(string);
+                if(loreline.toString().length() > 25) {
+                    lore.add(ChatColor.GRAY + loreline.toString().trim());
+                    loreline = new StringBuilder();
+                }
+            }
+            if(!loreline.toString().equalsIgnoreCase("")) {
+                lore.add(ChatColor.GRAY + loreline.toString().trim());
+            }
         }
 
         if (Objects.isNull(location)) {
@@ -64,6 +81,13 @@ public class QuestLog {
         } else {
             Location loc = Location.deserialize(location);
             lore.add(ChatColor.GRAY + "(" + loc.getBlockX() + ", " + loc.getBlockY() + ", " + loc.getBlockZ() + ")");
+        }
+
+        if(playerInfo.completedQuests.contains(uuid)) {
+            lore.add("");
+            lore.add(ChatColor.GRAY + "Completed Quest");
+            itemMeta.addEnchant(Enchantment.DURABILITY, 1, true);
+            itemMeta.addItemFlags(ItemFlag.HIDE_ENCHANTS);
         }
         itemMeta.setLore(lore);
         questItem.setItemMeta(itemMeta);
@@ -109,7 +133,7 @@ public class QuestLog {
 
     public void delete() {
         if(!Quests.totalMainQuestsMap.containsKey(this.name) && !Quests.totalSideQuestsMap.containsKey(this.name)) {
-            Bukkit.getLogger().severe("Error removing quest, it does not exist inside maps! Contact Optivat to fix...");
+            Bukkit.getLogger().severe(Quests.prefix +"Error removing quest, it does not exist inside maps! Contact Optivat to fix...");
             return;
         }
         if(main) {
@@ -136,5 +160,18 @@ public class QuestLog {
         Bukkit.getLogger().info("NULL for: Method, getQuestByName()");
         return null;
     }
-
+    public static QuestLog getQuestByUUID(UUID uuid) {
+        QuestLog questLogUUID = null;
+        for(QuestLog questLog : Quests.totalMainQuestsMap.values()) {
+            if(uuid == questLog.uuid) {
+                questLogUUID = questLog;
+            }
+        }
+        for(QuestLog questLog : Quests.totalSideQuestsMap.values()) {
+            if(uuid == questLog.uuid) {
+                questLogUUID = questLog;
+            }
+        }
+        return questLogUUID;
+    }
 }

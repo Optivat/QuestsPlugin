@@ -1,5 +1,6 @@
 package com.titanborn.plugin.events;
 
+import com.titanborn.plugin.PlayerQuestInfo;
 import com.titanborn.plugin.QuestLog;
 import com.titanborn.plugin.Quests;
 import com.titanborn.plugin.commands.QuestsCommand;
@@ -26,25 +27,27 @@ public class QuestsMenuListener implements Listener {
             e.setCancelled(true);
             //To prevent null in console
             if(e.getRawSlot() > 54 || e.getRawSlot() < 0) {return;}
+            if(Objects.isNull(e.getInventory().getItem(e.getRawSlot()))) {return;}
             ItemStack clickedItem = e.getInventory().getItem(e.getRawSlot());
             if (clickedItem == null) {return;}
             if (!clickedItem.hasItemMeta()) {return;}
             //If the user clicks on a quest
             Player player = (Player) e.getWhoClicked();
-            removeBeacon(player);
-            createBeacon(clickedItem, player, e.getView().getTitle(), e);
-            if (Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName().equalsIgnoreCase(ChatColor.YELLOW + "Previous Page")) {
-                int currentPlayerPage = Quests.playerPageMain.get(player);
+            PlayerQuestInfo playerInfo = Quests.playerQuestInfo.get(player.getUniqueId());
+            removeBeacon(playerInfo, player);
+            createBeacon(playerInfo, clickedItem, player, e.getView().getTitle(), e);
+            if (Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName().equalsIgnoreCase(ChatColor.YELLOW + "Previous Page")) {;
+                int currentPlayerPage = playerInfo.playerPageMain;
                 //This line of code should never happen, but if it does then this line of code should fix it.
-                if(currentPlayerPage <= 0) {Quests.playerPageMain.put(player, 0);QuestsCommand.openMainQuestsGUI(player);player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 3.0F, 0.5F);return;}
-                Quests.playerPageMain.put(player, currentPlayerPage-1);
+                if(currentPlayerPage <= 0) {playerInfo.playerPageMain = 0;QuestsCommand.openMainQuestsGUI(player);player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 3.0F, 0.5F);return;}
+                playerInfo.playerPageMain-=1;
                 QuestsCommand.openMainQuestsGUI(player);
             }
             if (Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName().equalsIgnoreCase(ChatColor.YELLOW + "Next Page")) {
-                int currentPlayerPage = Quests.playerPageMain.get(player);
+                int currentPlayerPage = playerInfo.playerPageMain;
                 //This line of code should never happen, but if it does then this line of code should fix it.
-                if(currentPlayerPage < 0) {Quests.playerPageMain.put(player, 0);QuestsCommand.openMainQuestsGUI(player);player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 3.0F, 0.5F);return;}
-                Quests.playerPageMain.put(player, currentPlayerPage+1);
+                if(currentPlayerPage <= 0) {playerInfo.playerPageMain = 0;QuestsCommand.openMainQuestsGUI(player);player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 3.0F, 0.5F);return;}
+                playerInfo.playerPageMain-=1;
                 QuestsCommand.openMainQuestsGUI(player);
             }
             if (Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName().equalsIgnoreCase(ChatColor.RED + "Close")) {
@@ -62,20 +65,21 @@ public class QuestsMenuListener implements Listener {
             if (!clickedItem.hasItemMeta()) {return;}
             //If the user clicks on a quest
             Player player = (Player) e.getWhoClicked();
-            removeBeacon(player);
-            createBeacon(clickedItem, player, e.getView().getTitle(), e);
+            PlayerQuestInfo playerInfo = Quests.playerQuestInfo.get(player.getUniqueId());
+            removeBeacon(playerInfo, player);
+            createBeacon(playerInfo, clickedItem, player, e.getView().getTitle(), e);
             if (Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName().equalsIgnoreCase(ChatColor.YELLOW + "Previous Page")) {
-                int currentPlayerPage = Quests.playerPageSide.get(player);
+                int currentPlayerPage = playerInfo.playerPageSide;
                 //This line of code should never happen, but if it does then this line of code should fix it.
-                if(currentPlayerPage <= 0) {Quests.playerPageSide.put(player, 0);QuestsCommand.openSideQuestsGUI(player);player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 3.0F, 0.5F);return;}
-                Quests.playerPageSide.put(player, currentPlayerPage-1);
+                if(currentPlayerPage <= 0) {playerInfo.playerPageSide = 0;QuestsCommand.openSideQuestsGUI(player);player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 3.0F, 0.5F);return;}
+                playerInfo.playerPageSide-=1;
                 QuestsCommand.openSideQuestsGUI(player);
             }
             if (Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName().equalsIgnoreCase(ChatColor.YELLOW + "Next Page")) {
-                int currentPlayerPage = Quests.playerPageSide.get(player);
+                int currentPlayerPage = playerInfo.playerPageSide;
                 //This line of code should never happen, but if it does then this line of code should fix it.
-                if(currentPlayerPage < 0) {Quests.playerPageSide.put(player, 0);QuestsCommand.openSideQuestsGUI(player);player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 3.0F, 0.5F);return;}
-                Quests.playerPageSide.put(player, currentPlayerPage+1);
+                if(currentPlayerPage <= 0) {playerInfo.playerPageSide = 0;QuestsCommand.openSideQuestsGUI(player);player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 3.0F, 0.5F);return;}
+                playerInfo.playerPageSide+=1;
                 QuestsCommand.openSideQuestsGUI(player);
             }
             if (Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName().equalsIgnoreCase(ChatColor.RED + "Close")) {
@@ -87,6 +91,7 @@ public class QuestsMenuListener implements Listener {
             e.setCancelled(true);
             //To prevent null in console
             if(e.getRawSlot() > 54 || e.getRawSlot() < 0) {return;}
+            if(Objects.isNull(e.getInventory().getItem(e.getRawSlot()))) {return;}
             ItemStack clickedItem = e.getInventory().getItem(e.getRawSlot());
             if (clickedItem == null) {return;}
             if (!clickedItem.hasItemMeta()) {return;}
@@ -240,6 +245,7 @@ public class QuestsMenuListener implements Listener {
             e.setCancelled(true);
             //To prevent null in console
             if(e.getRawSlot() > 54 || e.getRawSlot() < 0) {return;}
+            if(Objects.isNull(e.getInventory().getItem(e.getRawSlot()))) {return;}
             ItemStack clickedItem = e.getInventory().getItem(e.getRawSlot());
             if (clickedItem == null) {return;}
             if (!clickedItem.hasItemMeta()) {return;}
@@ -264,6 +270,7 @@ public class QuestsMenuListener implements Listener {
             e.setCancelled(true);
             //To prevent null in console
             if(e.getRawSlot() > 54 || e.getRawSlot() < 0) {return;}
+            if(Objects.isNull(e.getInventory().getItem(e.getRawSlot()))) {return;}
             ItemStack clickedItem = e.getInventory().getItem(e.getRawSlot());
             if (clickedItem == null) {return;}
             if (!clickedItem.hasItemMeta()) {return;}
@@ -293,9 +300,8 @@ public class QuestsMenuListener implements Listener {
         }
     }
 
-    public static void createBeacon(ItemStack clickedItem, Player player, String title, InventoryClickEvent e) {
+    public static void createBeacon(PlayerQuestInfo playerInfo, ItemStack clickedItem, Player player, String title, InventoryClickEvent e) {
         if (clickedItem.getType() == Material.WRITABLE_BOOK || clickedItem.getType() == Material.WRITTEN_BOOK || clickedItem.getType() == Material.ENCHANTED_BOOK || clickedItem.getType() == Material.PAPER) {
-            //This code creates a Beacon 30 blocks under the ground client side.
             ItemMeta questBookMeta = clickedItem.getItemMeta();
             assert questBookMeta != null;
             QuestLog questLog;
@@ -311,9 +317,16 @@ public class QuestsMenuListener implements Listener {
             } else {
                 return;
             }
+            //Calls the QuestStartEvent so the QuestsAdapter can catch and recieve it.
             Bukkit.getPluginManager().callEvent(event);
-            Quests.currentQuestSelected.put(String.valueOf(player.getUniqueId()), questLog);
+            if(playerInfo.currentQuestSelected != null) {removeBeacon(playerInfo, player);}
+            playerInfo.currentQuestSelected = questLog.uuid;
+            //Begings objectives for the quest for the player
+            if(!playerInfo.currentObjective.containsKey(playerInfo.currentQuestSelected)) {
+                playerInfo.currentObjective.put(questLog.uuid, 0);
+            }
             Quests.saveJson();
+            //This code creates a Beacon 30 blocks under the ground client side.
             Location location = Location.deserialize(questLog.location);
             int x = location.getBlockX();
             int y = location.getBlockY() - 30;
@@ -336,15 +349,16 @@ public class QuestsMenuListener implements Listener {
             e.getView().close();
         }
     }
-    public static void removeBeacon(Player player) {
-        if (Quests.currentQuestSelected.get(String.valueOf(player.getUniqueId())) == null) {return;}
-        Location location = Location.deserialize(Quests.currentQuestSelected.get(String.valueOf(player.getUniqueId())).location);
+    public static void removeBeacon(PlayerQuestInfo playerInfo, Player player) {
+        if (playerInfo.currentQuestSelected == null) {return;}
+        QuestLog currentQuest = QuestLog.getQuestByUUID(playerInfo.currentQuestSelected);
+        Location location = Location.deserialize(currentQuest.location);
         int x = location.getBlockX();
         int y = location.getBlockY() - 30;
         int z = location.getBlockZ();
 
         World world = location.getWorld();
-        if(world == null) {Bukkit.getLogger().severe("at removeBeacon(), the world of the log is somehow null???");return;}
+        if(world == null) {Bukkit.getLogger().severe(Quests.prefix +"at removeBeacon(), the world of the log is somehow null???");return;}
 
         player.sendBlockChange(new Location(world, x, y, z), world.getBlockAt(new Location(world, x, y, z)).getBlockData());
         for (int i = 0; i <= 29; ++i) {

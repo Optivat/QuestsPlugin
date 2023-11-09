@@ -1,5 +1,6 @@
 package com.titanborn.plugin.events;
 
+import com.titanborn.plugin.PlayerQuestInfo;
 import com.titanborn.plugin.QuestLog;
 import com.titanborn.plugin.Quests;
 import com.titanborn.plugin.events.custom.QuestStartEvent;
@@ -43,9 +44,10 @@ public class GenericListener implements Listener {
     //To maintain current quest
     @EventHandler
     public void onPlayerMove(PlayerMoveEvent e) {
-        if (Quests.currentQuestSelected.containsKey(String.valueOf(e.getPlayer().getUniqueId()))) {
+        if (Quests.playerQuestInfo.containsKey(e.getPlayer().getUniqueId()) && Quests.playerQuestInfo.get(e.getPlayer().getUniqueId()).currentQuestSelected != null) {
             Player player = e.getPlayer();
-            QuestLog questLog = Quests.currentQuestSelected.get(String.valueOf(e.getPlayer().getUniqueId()));
+            PlayerQuestInfo playerInfo = Quests.playerQuestInfo.get(player.getUniqueId());
+            QuestLog questLog = QuestLog.getQuestByUUID(playerInfo.currentQuestSelected);
             Location location = Location.deserialize(questLog.location);
             int x = location.getBlockX();
             int y = location.getBlockY() - 30;
