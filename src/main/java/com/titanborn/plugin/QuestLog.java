@@ -131,6 +131,7 @@ public class QuestLog {
         return questItem;
     }
 
+    @Deprecated
     public void delete() {
         if(!Quests.totalMainQuestsMap.containsKey(this.name) && !Quests.totalSideQuestsMap.containsKey(this.name)) {
             Bukkit.getLogger().severe(Quests.prefix +"Error removing quest, it does not exist inside maps! Contact Optivat to fix...");

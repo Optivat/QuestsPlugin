@@ -36,7 +36,7 @@ public class QuestsMenuListener implements Listener {
             PlayerQuestInfo playerInfo = Quests.playerQuestInfo.get(player.getUniqueId());
             removeBeacon(playerInfo, player);
             createBeacon(playerInfo, clickedItem, player, e.getView().getTitle(), e);
-            if (Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName().equalsIgnoreCase(ChatColor.YELLOW + "Previous Page")) {;
+            if (Objects.requireNonNull(clickedItem.getItemMeta()).getDisplayName().equalsIgnoreCase(ChatColor.YELLOW + "Previous Page")) {
                 int currentPlayerPage = playerInfo.playerPageMain;
                 //This line of code should never happen, but if it does then this line of code should fix it.
                 if(currentPlayerPage <= 0) {playerInfo.playerPageMain = 0;QuestsCommand.openMainQuestsGUI(player);player.playSound(player, Sound.BLOCK_NOTE_BLOCK_BASS, 3.0F, 0.5F);return;}
