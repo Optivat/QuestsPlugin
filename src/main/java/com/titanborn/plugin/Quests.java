@@ -206,6 +206,18 @@ public final class Quests extends JavaPlugin {
             }
         }
     }
+    @SuppressWarnings("unused")
+    public static void completeObjective(Player player) {
+        if(!playerQuestInfo.containsKey(player.getUniqueId())) {return;}
+        PlayerQuestInfo playerInfo = playerQuestInfo.get(player.getUniqueId());
+        int currentObjectiveValue = playerInfo.currentObjective.get(playerInfo.currentQuestSelected);
+        QuestLog questLog = QuestLog.getQuestByUUID(playerInfo.currentQuestSelected);
+        if(questLog.objectives.size()-1 == currentObjectiveValue) {
+            completeQuest(player);
+        } else {
+            playerInfo.currentObjective.put(playerInfo.currentQuestSelected, currentObjectiveValue+1);
+        }
+    }
 
     @Override
     public void onDisable() {
