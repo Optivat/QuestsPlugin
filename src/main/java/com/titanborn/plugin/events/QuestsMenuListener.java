@@ -193,6 +193,12 @@ public class QuestsMenuListener implements Listener {
                     player.sendMessage(ChatColor.GREEN + "Select an entity for the quest location!");
                     break;
                 case ARMOR_STAND:
+                    String text = "";
+                    if(questLog.objectives.isEmpty()) {
+                        text = "Write an objective!";
+                    } else {
+                        text = questLog.objectives.get(questLog.objectives.size()-1);
+                    }
                     new AnvilGUI.Builder()
                             .onClick((slot, stateSnapshot) -> {
                                 if(slot == AnvilGUI.Slot.OUTPUT) {
@@ -226,7 +232,7 @@ public class QuestsMenuListener implements Listener {
                                     return Collections.singletonList(AnvilGUI.ResponseAction.replaceInputText("Try again"));
                                 }
                             })
-                            .text(questLog.objectives.get(questLog.objectives.size()-1))
+                            .text(text)
                             .title("Create or modify an objective.")
                             .plugin(Bukkit.getPluginManager().getPlugin("Quests"))
                             .onClose(stateSnapshot -> QuestsCommand.openQuestsCreationGUI(player, questLog))
@@ -308,15 +314,26 @@ public class QuestsMenuListener implements Listener {
             QuestStartEvent event;
             if (title.equalsIgnoreCase(ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Side Quests")) {
                 questLog = QuestLog.getQuestByMetaName(questBookMeta.getDisplayName(), "side");
-                assert questLog != null;
+                if(questLog == null) {Bukkit.getLogger().severe(Quests.prefix + "There is no quest that goes by this display name");return;}
                 event = new QuestStartEvent(player, questLog.name, questLog.main);
             } else if (title.equalsIgnoreCase(ChatColor.DARK_AQUA.toString() + ChatColor.BOLD + "Main Quests")) {
                 questLog = QuestLog.getQuestByMetaName(questBookMeta.getDisplayName(), "main");
-                assert questLog != null;
+                if(questLog == null) {Bukkit.getLogger().severe(Quests.prefix + "There is no quest that goes by this display name");return;}
                 event = new QuestStartEvent(player, questLog.name, questLog.main);
             } else {
                 return;
             }
+            //Check to see if quest is already completed
+            if(playerInfo.completedQuests.contains(questLog.uuid)) {
+                player.sendMessage(ChatColor.RED + "You have already completed this quest!");
+                return;
+            }
+            //Check to see if quest is already selected
+            if(playerInfo.currentQuestSelected.equals(questLog.uuid)) {
+                player.sendMessage(ChatColor.RED + "You have already selected this quest!");
+                return;
+            }
+
             //Calls the QuestStartEvent so the QuestsAdapter can catch and recieve it.
             Bukkit.getPluginManager().callEvent(event);
             if(playerInfo.currentQuestSelected != null) {removeBeacon(playerInfo, player);}
@@ -328,14 +345,15 @@ public class QuestsMenuListener implements Listener {
             Quests.saveJson();
             //This code creates a Beacon 30 blocks under the ground client side.
             Location location = Location.deserialize(questLog.location);
+            int blocksDown = 30;
             int x = location.getBlockX();
-            int y = location.getBlockY() - 30;
+            int y = location.getBlockY() - blocksDown;
             int z = location.getBlockZ();
 
             World world = location.getWorld();
 
             player.sendBlockChange(new Location(world, x, y, z), Material.BEACON.createBlockData());
-            for (int i = 0; i <= 29; ++i) {
+            for (int i = 0; i < blocksDown; ++i) {
                 assert world != null;
                 if (world.getBlockAt(x, (y + 1) + i, z).getType() != Material.AIR) {
                     player.sendBlockChange(new Location(world, x, (y + 1) + i, z), Material.WHITE_STAINED_GLASS.createBlockData());
@@ -351,6 +369,7 @@ public class QuestsMenuListener implements Listener {
     }
     public static void removeBeacon(PlayerQuestInfo playerInfo, Player player) {
         if (playerInfo.currentQuestSelected == null) {return;}
+        if(QuestLog.getQuestByUUID(playerInfo.currentQuestSelected) == null) {return;}
         QuestLog currentQuest = QuestLog.getQuestByUUID(playerInfo.currentQuestSelected);
         Location location = Location.deserialize(currentQuest.location);
         int x = location.getBlockX();

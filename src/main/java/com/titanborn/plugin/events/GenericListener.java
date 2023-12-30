@@ -47,6 +47,7 @@ public class GenericListener implements Listener {
         if (Quests.playerQuestInfo.containsKey(e.getPlayer().getUniqueId()) && Quests.playerQuestInfo.get(e.getPlayer().getUniqueId()).currentQuestSelected != null) {
             Player player = e.getPlayer();
             PlayerQuestInfo playerInfo = Quests.playerQuestInfo.get(player.getUniqueId());
+            if(QuestLog.getQuestByUUID(playerInfo.currentQuestSelected) == null) {return;}
             QuestLog questLog = QuestLog.getQuestByUUID(playerInfo.currentQuestSelected);
             Location location = Location.deserialize(questLog.location);
             int x = location.getBlockX();

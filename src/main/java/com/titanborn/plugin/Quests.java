@@ -7,6 +7,8 @@ import com.titanborn.plugin.commands.QuestsCommand;
 import com.titanborn.plugin.commands.QuestsCommandTabCompleter;
 import com.titanborn.plugin.events.GenericListener;
 import com.titanborn.plugin.events.QuestsMenuListener;
+import com.titanborn.plugin.events.custom.QuestEndEvent;
+import com.titanborn.plugin.events.custom.QuestObjectiveCompleteEvent;
 import com.titanborn.plugin.events.custom.QuestStartEvent;
 import org.bukkit.*;
 import org.bukkit.command.PluginCommand;
@@ -39,8 +41,8 @@ public final class Quests extends JavaPlugin {
         totalMainQuestsFile = new File(getDataFolder().getAbsolutePath() + "/main_quests.json");
         totalSideQuestsFile = new File(getDataFolder().getAbsolutePath() + "/side_quests.json");
         playerQuestInfoFile = new File(getDataFolder().getAbsolutePath() + "/players_info.json");
-        //Initialization of JSON, might put in a separate class if needed.
 
+        //Initialization of JSON, might put in a separate class if needed.
         //First boot up of the plugin, it will create an empty json.
         if (!totalMainQuestsFile.exists()) {
             try {
@@ -107,7 +109,7 @@ public final class Quests extends JavaPlugin {
             //After first boot up, it will always go to this line of code.
             try {
                 //Using an experimental feature, may cause errors in the future
-                @SuppressWarnings("UnstableApiUsage") Type playerQuestType = new TypeToken<Map<String, QuestLog>>(){}.getType();
+                @SuppressWarnings("UnstableApiUsage") Type playerQuestType = new TypeToken<Map<UUID, PlayerQuestInfo>>(){}.getType();
                 playerQuestInfo = gson.fromJson(new FileReader(playerQuestInfoFile), playerQuestType);
                 if(playerQuestInfoFile == null) {
                     playerQuestInfo = new HashMap<>();
@@ -125,6 +127,13 @@ public final class Quests extends JavaPlugin {
 
         Bukkit.getPluginManager().registerEvents(new QuestsMenuListener(), this);
         Bukkit.getPluginManager().registerEvents(new GenericListener(), this);
+
+        if(!Bukkit.getPluginManager().isPluginEnabled("MMOCore")) {
+            Bukkit.getLogger().severe(Quests.prefix + "FAILED TO FIND PLUGIN DEPENDENCY: MMOCore | SHUTTING DOWN PLUGIN");
+            Bukkit.getPluginManager().disablePlugin(this);
+        } else {
+            Bukkit.getLogger().info(Quests.prefix + "MMOCore is loaded and recognized by Quests Plugin");
+        }
     }
 
     public static void saveJson() {
@@ -163,6 +172,8 @@ public final class Quests extends JavaPlugin {
             PlayerQuestInfo playerInfo = playerQuestInfo.get(player.getUniqueId());
             QuestLog completedQuest = QuestLog.getQuestByUUID(playerInfo.currentQuestSelected);
             playerInfo.completedQuests.add(playerInfo.currentQuestSelected);
+            QuestEndEvent questEndEvent = new QuestEndEvent(player, completedQuest.name, completedQuest.main);
+            Bukkit.getPluginManager().callEvent(questEndEvent);
             ArrayList<QuestLog> quests;
             if(completedQuest.main) {
                 quests = new ArrayList<>(totalMainQuestsMap.values());
@@ -199,8 +210,8 @@ public final class Quests extends JavaPlugin {
                             player.sendBlockChange(new Location(world, xPoint, y - 1, zPoint), Material.IRON_BLOCK.createBlockData());
                         }
                     }
-                    QuestStartEvent event = new QuestStartEvent(player, questLog.name, questLog.main);
-                    Bukkit.getPluginManager().callEvent(event);
+                    QuestStartEvent questStartEvent = new QuestStartEvent(player, questLog.name, questLog.main);
+                    Bukkit.getPluginManager().callEvent(questStartEvent);
                     break;
                 }
             }
@@ -212,11 +223,35 @@ public final class Quests extends JavaPlugin {
         PlayerQuestInfo playerInfo = playerQuestInfo.get(player.getUniqueId());
         int currentObjectiveValue = playerInfo.currentObjective.get(playerInfo.currentQuestSelected);
         QuestLog questLog = QuestLog.getQuestByUUID(playerInfo.currentQuestSelected);
+        QuestObjectiveCompleteEvent questObjectiveCompleteEvent = new QuestObjectiveCompleteEvent(player, questLog.name, questLog.main);
+        Bukkit.getPluginManager().callEvent(questObjectiveCompleteEvent);
         if(questLog.objectives.size()-1 == currentObjectiveValue) {
             completeQuest(player);
         } else {
             playerInfo.currentObjective.put(playerInfo.currentQuestSelected, currentObjectiveValue+1);
         }
+    }
+    @SuppressWarnings("unused")
+    public static int checkIfQuestIsCompleted(UUID playerUUID, String quest, boolean main) {
+        Player player = Bukkit.getPlayer(playerUUID);
+        if(player == null) {Bukkit.getLogger().severe("Typewriter Fact return null on QuestInfo, invalid UUID? defaulting to false");return -1;}
+        if(!playerQuestInfo.containsKey(player.getUniqueId())) {Bukkit.getLogger().severe("Typewriter Fact return null on QuestInfo, defaulting to false");return -1;}
+        PlayerQuestInfo playerInfo = playerQuestInfo.get(player.getUniqueId());
+        String menu;
+        if(main) {menu = "main";} else {menu = "side";}
+        QuestLog questLog = QuestLog.getQuestByMetaName(quest, menu);
+        if(questLog == null) {Bukkit.getLogger().severe("Typewriter Fact return null on getting Quest, incorrect name? defaulting to false"); return -1;}
+        if (playerInfo.completedQuests.contains(questLog.uuid)) {
+            return 1;
+        } else {
+            return 0;
+        }
+    }
+    @SuppressWarnings("unused")
+    public static int getTotalCompletedQuests(Player player) {
+        if(!playerQuestInfo.containsKey(player.getUniqueId())) {Bukkit.getLogger().severe("Typewriter Fact return null on QuestInfo, defaulting to false");return 0;}
+        PlayerQuestInfo playerInfo = playerQuestInfo.get(player.getUniqueId());
+        return playerInfo.completedQuests.size();
     }
 
     @Override

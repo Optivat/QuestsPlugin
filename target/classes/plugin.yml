@@ -1,7 +1,9 @@
 name: Quests
-version: '0.1'
+version: '0.1.1'
 main: com.titanborn.plugin.Quests
 api-version: 1.19
+depend: [MMOCore]
+authors: [Optivat, ArcaneBeast]
 commands:
   quests:
     description: Quests for questing purposes.

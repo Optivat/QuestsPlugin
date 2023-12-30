@@ -8,5 +8,7 @@ com\titanborn\plugin\Quests.class
 com\titanborn\plugin\commands\QuestsCommandTabCompleter.class
 com\titanborn\plugin\PlayerQuestInfo.class
 com\titanborn\plugin\QuestLog.class
+com\titanborn\plugin\events\custom\QuestObjectiveCompleteEvent.class
 com\titanborn\plugin\commands\QuestsCommand.class
 com\titanborn\plugin\Quests$2.class
+com\titanborn\plugin\events\custom\QuestEndEvent.class

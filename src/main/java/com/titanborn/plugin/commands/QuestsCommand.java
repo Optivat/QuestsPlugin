@@ -24,7 +24,7 @@ import java.util.Objects;
 
 public class QuestsCommand implements CommandExecutor {
 
-    // Suppressing this problems like how I supress stress in real life...
+    // Suppressing these problems like how I supress stress in real life...
     @SuppressWarnings("NullableProblems")
     @Override
     public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
@@ -95,6 +95,30 @@ public class QuestsCommand implements CommandExecutor {
                             player.sendMessage(ChatColor.RED + "Invalid arguments for open! /quests open (main/side)");
                         }
                         //To open the GUI
+                        break;
+                    case "edit":
+                        if(args.length == 3) {
+                            QuestLog questLog;
+                            if(args[1].equalsIgnoreCase("main")) {
+                                questLog = QuestLog.getQuestByMetaName(args[2], "main");
+                            } else if (args[1].equalsIgnoreCase("side")) {
+                                questLog = QuestLog.getQuestByMetaName(args[2], "side");
+                            } else {
+                                player.sendMessage(ChatColor.RED + "Invalid arguments for edit! /quests edit (quest name [NOT CASE SENSITIVE]) (main/side)");
+                                return false;
+                            }
+                            if(questLog == null) {
+                                player.sendMessage(ChatColor.RED + "Invalid quest name for edit! /quests edit (quest name [NOT CASE SENSITIVE]) (main/side)");
+                                return false;
+                            }
+
+                            if(!Quests.currentQuestCreation.containsKey(player)) {
+                                Quests.currentQuestCreation.put(player, questLog);
+                            }
+                            QuestsCommand.openQuestsCreationGUI(player, Quests.currentQuestCreation.get(player));
+                        } else {
+                            player.sendMessage(ChatColor.RED + "Invalid arguments for edit! /quests edit (quest name [NOT CASE SENSITIVE]) (main/side)");
+                        }
                         break;
                     default:
                         return false;
@@ -488,6 +512,7 @@ public class QuestsCommand implements CommandExecutor {
                     lore.add(ChatColor.GRAY + loreline.toString().trim());
                 }
                 lore.add("");
+                objectiveIncrement+=1;
             }
         }
 

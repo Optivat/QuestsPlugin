@@ -1,5 +1,7 @@
 package com.titanborn.plugin;
 
+import net.Indyuce.mmocore.MMOCore;
+import net.Indyuce.mmocore.api.MMOCoreAPI;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.Location;
@@ -9,6 +11,7 @@ import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemFlag;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.plugin.java.JavaPlugin;
 
 import java.util.*;
 
@@ -42,7 +45,14 @@ public class QuestLog {
         List<String> lore = new ArrayList<>();
         lore.add("");
         //This will change, to where it will actually check the level.
-        lore.add(ChatColor.GRAY + "❌ Combat Lv. Min: " + minLevel);
+        MMOCoreAPI api = new MMOCoreAPI((JavaPlugin) Bukkit.getPluginManager().getPlugin("Quests"));
+        int level = api.getPlayerData(player).getLevel();
+        if(level > minLevel) {
+            lore.add(ChatColor.GRAY + "✔ Combat Lv. Min: " + minLevel);
+        } else {
+            lore.add(ChatColor.GRAY + "❌ Combat Lv. Min: " + minLevel);
+
+        }
         lore.add(ChatColor.GRAY + "- Length: " + ChatColor.BOLD + length);
         lore.add("");
         //Creating the description for the lore
@@ -61,7 +71,7 @@ public class QuestLog {
         }
         lore.add("");
         if(!objectives.isEmpty() && playerInfo.currentQuestSelected != null && playerInfo.currentQuestSelected == uuid && QuestLog.getQuestByUUID(playerInfo.currentQuestSelected).main == main) {
-            lore.add(ChatColor.GRAY + "Current Objective: ");
+            lore.add(ChatColor.GOLD + "Current Objective: ");
             String[] objectiveSplit = objectives.get(playerInfo.currentObjective.get(uuid)).split("\\s");
             loreline = new StringBuilder();
             for(String string : objectiveSplit) {
@@ -75,7 +85,7 @@ public class QuestLog {
                 lore.add(ChatColor.GRAY + loreline.toString().trim());
             }
         }
-
+        lore.add("");
         if (Objects.isNull(location)) {
             lore.add(ChatColor.GRAY + "(Location is null!)");
         } else {
@@ -164,15 +174,16 @@ public class QuestLog {
     public static QuestLog getQuestByUUID(UUID uuid) {
         QuestLog questLogUUID = null;
         for(QuestLog questLog : Quests.totalMainQuestsMap.values()) {
-            if(uuid == questLog.uuid) {
+            if(uuid.equals(questLog.uuid)) {
                 questLogUUID = questLog;
             }
         }
         for(QuestLog questLog : Quests.totalSideQuestsMap.values()) {
-            if(uuid == questLog.uuid) {
+            if(uuid.equals(questLog.uuid)) {
                 questLogUUID = questLog;
             }
         }
+        if(questLogUUID == null) {Bukkit.getLogger().severe(Quests.prefix + "THERE ARE NO QUESTS THAT GOES BY THIS ID, CONTACT OPTIVAT FOR FIX.");}
         return questLogUUID;
     }
 }
