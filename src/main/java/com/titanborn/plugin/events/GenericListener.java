@@ -4,6 +4,7 @@ import com.titanborn.plugin.PlayerQuestInfo;
 import com.titanborn.plugin.QuestLog;
 import com.titanborn.plugin.Quests;
 import com.titanborn.plugin.events.custom.QuestStartEvent;
+import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.Material;
 import org.bukkit.World;
@@ -47,7 +48,8 @@ public class GenericListener implements Listener {
         if (Quests.playerQuestInfo.containsKey(e.getPlayer().getUniqueId()) && Quests.playerQuestInfo.get(e.getPlayer().getUniqueId()).currentQuestSelected != null) {
             Player player = e.getPlayer();
             PlayerQuestInfo playerInfo = Quests.playerQuestInfo.get(player.getUniqueId());
-            if(QuestLog.getQuestByUUID(playerInfo.currentQuestSelected) == null) {return;}
+            if(QuestLog.getQuestByUUID(playerInfo.currentQuestSelected) == null) {
+                Bukkit.getLogger().severe(Quests.prefix + "Failed to create beacon on PlayerMoveEvent!");return;}
             QuestLog questLog = QuestLog.getQuestByUUID(playerInfo.currentQuestSelected);
             Location location = Location.deserialize(questLog.location);
             int x = location.getBlockX();

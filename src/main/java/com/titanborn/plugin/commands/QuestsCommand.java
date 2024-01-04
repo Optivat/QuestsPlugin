@@ -59,21 +59,35 @@ public class QuestsCommand implements CommandExecutor {
                     case "remove":
                         if(args.length == 3) {
                             if(args[1].equalsIgnoreCase("main")) {
-                                if(Quests.totalMainQuestsMap.containsKey(args[1])) {
-                                    Quests.totalMainQuestsMap.remove(args[1]);
+                                String quest = args[2].replace("_", " ");
+                                if(Quests.totalMainQuestsMap.containsKey(quest)) {
+                                    QuestLog questLog = Quests.totalMainQuestsMap.get(quest);
+                                    Quests.totalMainQuestsMap.remove(quest);
+                                    for(PlayerQuestInfo info : Quests.playerQuestInfo.values()) {
+                                        if(info.currentQuestSelected.equals(questLog.uuid)) {
+                                            info.currentQuestSelected = null;
+                                        }
+                                    }
                                     Quests.saveJson();
                                 } else {
                                     player.sendMessage(ChatColor.RED + "Invalid arguments for remove! The name is not a main quest.");
                                 }
                             } else if (args[1].equalsIgnoreCase("side")) {
-                                if(Quests.totalSideQuestsMap.containsKey(args[1])) {
-                                    Quests.totalSideQuestsMap.remove(args[1]);
+                                String quest = args[2].replace("_", " ");
+                                if(Quests.totalSideQuestsMap.containsKey(quest)) {
+                                    QuestLog questLog = Quests.totalSideQuestsMap.get(quest);
+                                    Quests.totalSideQuestsMap.remove(quest);
+                                    for(PlayerQuestInfo info : Quests.playerQuestInfo.values()) {
+                                        if(info.currentQuestSelected.equals(questLog.uuid)) {
+                                            info.currentQuestSelected = null;
+                                        }
+                                    }
                                     Quests.saveJson();
                                 } else {
                                     player.sendMessage(ChatColor.RED + "Invalid arguments for remove! The name is not a side quest.");
                                 }
                             } else {
-                                player.sendMessage(ChatColor.RED + "Invalid argument for create! The first argument should be \"main\" or \"side\".");
+                                player.sendMessage(ChatColor.RED + "Invalid argument for remove! The first argument should be \"main\" or \"side\".");
                             }
                         } else {
                             player.sendMessage(ChatColor.RED + "Invalid arguments for remove! /quests remove (main/side) (name)");
@@ -97,12 +111,13 @@ public class QuestsCommand implements CommandExecutor {
                         //To open the GUI
                         break;
                     case "edit":
+                        String quest = args[2].replace("_", " ");
                         if(args.length == 3) {
                             QuestLog questLog;
                             if(args[1].equalsIgnoreCase("main")) {
-                                questLog = QuestLog.getQuestByMetaName(args[2], "main");
+                                questLog = QuestLog.getQuestByMetaName(quest, "main");
                             } else if (args[1].equalsIgnoreCase("side")) {
-                                questLog = QuestLog.getQuestByMetaName(args[2], "side");
+                                questLog = QuestLog.getQuestByMetaName(quest, "side");
                             } else {
                                 player.sendMessage(ChatColor.RED + "Invalid arguments for edit! /quests edit (quest name [NOT CASE SENSITIVE]) (main/side)");
                                 return false;
